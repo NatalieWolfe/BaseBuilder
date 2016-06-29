@@ -7,17 +7,18 @@ public class CameraController : MonoBehaviour {
 
 	void Update () {
         movement = Vector3.zero;
-        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
+        if (InputManager.Vertical > 0) {
             movement.y += speed;
         }
-        if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
+        else if (InputManager.Vertical < 0) {
             movement.y -= speed;
         }
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
-            movement.x -= speed;
-        }
-        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
+
+        if (InputManager.Horizontal > 0) {
             movement.x += speed;
+        }
+        else if (InputManager.Horizontal < 0) {
+            movement.x -= speed;
         }
 
         transform.position += movement * Time.deltaTime;
