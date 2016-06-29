@@ -7,7 +7,18 @@ public class BoardManager : MonoBehaviour {
 
     public Board board;
 
-	// Use this for initialization
+    public static IntVector2 WorldToGridPoint(Vector3 pos) {
+        return instance.board.WorldToGridPoint(pos);
+    }
+
+    public static Vector3 GridToWorldPoint(IntVector2 pos) {
+        return instance.board.GridToWorldPoint(pos);
+    }
+
+    public static IntVector2 ScreenToGridPoint(Vector3 pos) {
+        return instance.board.WorldToGridPoint(Camera.main.ScreenToWorldPoint(pos));
+    }
+
 	void Start () {
         if (instance != null && instance != this) {
             Destroy(this);
@@ -17,10 +28,5 @@ public class BoardManager : MonoBehaviour {
 
         // TODO: Make board generation dynamic.
         board = new Board(5, 5);
-	}
-
-	// Update is called once per frame
-	void Update () {
-
 	}
 }
