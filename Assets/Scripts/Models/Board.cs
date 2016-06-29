@@ -4,7 +4,11 @@ using System.Collections;
 public class Board {
     public enum TileType { Edge = 0, Grass };
 
-    // TODO: Make boards infinite in dimension.
+    // TODO: Make boards infinite in dimension. Simplex or Perlin?
+    // TODO: Use a 2-dimensional sparse array for storing tile contents.
+    // TODO: Decide if sparse array is actually correct approach. Maybe flatten
+    //       large structures into a single element instead? Keep items in a
+    //       simple 2D array and just load a few large blocks at a time?
     public int width;
     public int height;
     public TileType[,] tiles;
