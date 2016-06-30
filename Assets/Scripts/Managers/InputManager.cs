@@ -9,6 +9,10 @@ public class InputManager : MonoBehaviour {
     public static Vector3 MouseWorldPosition;
     public static IntVector2 MouseGridPosition;
 
+    public static bool MouseLeftDown;
+    public static bool MouseLeftPressed;
+    public static bool MouseLeftUp;
+
 	void Update () {
         // Update our mouse position.
         MouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -20,5 +24,10 @@ public class InputManager : MonoBehaviour {
         Horizontal = Input.GetAxis("Horizontal");
         Vertical = Input.GetAxis("Vertical");
         Action = Input.GetButtonDown("Action");
+
+        // Update mouse button state.
+        MouseLeftDown = Input.GetMouseButtonDown(0);
+        MouseLeftPressed = Input.GetMouseButton(0);
+        MouseLeftUp = Input.GetMouseButtonUp(0);
 	}
 }

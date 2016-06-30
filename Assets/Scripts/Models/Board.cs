@@ -26,6 +26,10 @@ public class Board {
         }
     }
 
+    public void SetTileType(IntVector2 pos, TileType type) {
+        tiles[pos.x, pos.y] = type;
+    }
+
     public TileType GetTileType(IntVector2 pos) {
         if (pos.x < 0 || pos.x >= width || pos.y < 0 || pos.y >= height) {
             return TileType.Edge;

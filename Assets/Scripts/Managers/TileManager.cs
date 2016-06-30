@@ -21,7 +21,7 @@ public class TileManager : MonoBehaviour {
     private IntVector2 tileBR = IntVector2.zero;
 
 	// Use this for initialization
-	void Start () {
+	void Start() {
         if (instance != null && instance != this) {
             Destroy(this);
             return;
@@ -35,7 +35,7 @@ public class TileManager : MonoBehaviour {
         ResizeDisplayBoard();
 	}
 
-	void Update () {
+	void Update() {
         // Get the camera controller and see if it has moved recently. If it has
         // not, then don't bother updating the displayed tiles.
         CameraController cam = Camera.main.GetComponent<CameraController>();
@@ -71,6 +71,16 @@ public class TileManager : MonoBehaviour {
         tileTL = topLeft.displayPosition;
         tileBR = botRight.displayPosition;
 	}
+
+    public void Redraw() {
+        Board board = BoardManager.Board;
+        for (int x = 0; x < displayWidth; ++x) {
+            for (int y = 0; y < displayHeight; ++y) {
+                TileController controller = displayTiles[x, y];
+                controller.SetType(board.GetTileType(controller.gridPosition));
+            }
+        }
+    }
 
     private void ResizeDisplayBoard() {
         // First, destroy our existing board.
