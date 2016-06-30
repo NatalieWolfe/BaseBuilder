@@ -10,6 +10,9 @@ public class WorkerController : MonoBehaviour {
     private Vector2 targetPosition;
 
 	void Update () {
+        // TODO: Implement A* pathfinding.
+        // TODO: Access WorkerManager for tasks.
+
         if (InputManager.Action) {
             // Use the mouse grid position to ensure our target is in the middle
             // of the tile clicked rather than whatever pixel the mouse clicked.

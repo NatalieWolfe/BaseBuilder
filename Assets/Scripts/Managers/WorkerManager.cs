@@ -2,14 +2,23 @@
 using System.Collections;
 
 public class WorkerManager : MonoBehaviour {
+    public static WorkerManager instance;
 
-	// Use this for initialization
+    public GameObject workerPrefab;
+
 	void Start () {
-	
+        if (instance != null && instance != this) {
+            Destroy(this);
+            return;
+        }
+        instance = this;
+
+        // TODO: Manage work force based on demand.
+        GameObject worker = (GameObject)Instantiate(workerPrefab);
+        worker.transform.parent = transform;
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
-	
+        // TODO: Manager work queue and resolve/collapse dependencies.
 	}
 }
