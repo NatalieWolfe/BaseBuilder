@@ -1,7 +1,7 @@
 
 ﻿using UnityEngine;
 
-public class IntDragger {
+public class IntDragger2 {
     public KeyCode key {get; private set;}
     public IntVector2 downPosition {get; private set;}
     public IntVector2 currentPosition {get; private set;}
@@ -15,7 +15,7 @@ public class IntDragger {
         get { return new IntBox2D(downPosition, currentPosition); }
     }
 
-    public IntDragger(KeyCode key) {
+    public IntDragger2(KeyCode key) {
         this.key = key;
     }
 

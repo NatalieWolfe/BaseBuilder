@@ -10,13 +10,13 @@ public class BuildingManager : MonoBehaviour {
 
     private PrefabPool cursorPool;
     private List<GameObject> cursors;
-    private IntDragger cursorDrag;
+    private IntDragger2 cursorDrag;
 
 	void Start() {
         cursors = new List<GameObject>();
         cursorPool = new PrefabPool(cursorPrefab);
         cursorPool.SetParent(transform);
-        cursorDrag = new IntDragger(KeyCode.Mouse0);
+        cursorDrag = new IntDragger2(KeyCode.Mouse0);
 	}
 
 	void Update() {
