@@ -8,20 +8,25 @@ public class BuildingManager : MonoBehaviour {
     public GameObject cursorPrefab;
     public Board.TileType constructType;
 
+    private PrefabPool cursorPool;
     private List<GameObject> cursors;
     private IntVector2 mouseDownPos = IntVector2.zero;
+    private IntVector2 mouseLastPos = IntVector2.zero;
 
 	void Start() {
         cursors = new List<GameObject>();
+        cursorPool = new PrefabPool(cursorPrefab);
+        cursorPool.SetParent(transform);
 	}
 
 	void Update() {
-        // TODO: Pool and re-use cursors.
-	    foreach (GameObject obj in cursors) {
-            Destroy(obj);
-        }
-        cursors.Clear();
         IntVector2 mousePos = InputManager.MouseGridPosition;
+        CursorDrag(mousePos);
+        mouseLastPos = mousePos;
+	}
+
+    private void CursorDrag(IntVector2 mousePos) {
+        bool mouseMoved = mousePos != mouseLastPos;
 
         // New drag started.
         if (InputManager.MouseLeftDown) {
@@ -34,19 +39,25 @@ public class BuildingManager : MonoBehaviour {
         int yMax = Math.Max(mouseDownPos.y, mousePos.y);
 
         // Mouse is down, update cursor.
-        if (InputManager.MouseLeftPressed) {
-            for (int x = xMin; x <= xMax; ++x) {
-                for (int y = yMin; y <= yMax; ++y) {
-                    GameObject obj = Instantiate(cursorPrefab);
-                    obj.transform.parent = transform;
-                    obj.transform.position = BoardManager.GridToWorldPoint(x, y);
-                    cursors.Add(obj);
+        if (InputManager.MouseLeftPressed && mouseMoved) {
+            // Release our currently displayed cursors.
+            ReleaseCursors();
+
+            IntVector2 pos = IntVector2.zero;
+            for (pos.x = xMin; pos.x <= xMax; ++pos.x) {
+                for (pos.y = yMin; pos.y <= yMax; ++pos.y) {
+                    cursors.Add(
+                        cursorPool.Acquire(BoardManager.GridToWorldPoint(pos))
+                    );
                 }
             }
         }
 
         // Mouse went up, update tiles.
         if (InputManager.MouseLeftUp) {
+            // No need to display the cursors anymore, release them.
+            ReleaseCursors();
+
             Board board = BoardManager.Board;
             IntVector2 pos = IntVector2.zero;
             for (int x = xMin; x <= xMax; ++x) {
@@ -58,5 +69,12 @@ public class BuildingManager : MonoBehaviour {
             }
             BoardManager.instance.BoardUpdated();
         }
-	}
+    }
+
+    private void ReleaseCursors() {
+        foreach (GameObject cursor in cursors) {
+            cursorPool.Release(cursor);
+        }
+        cursors.Clear();
+    }
 }
