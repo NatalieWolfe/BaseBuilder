@@ -4,17 +4,16 @@ using System;
 using System.Collections;
 
 public class TileManager : MonoBehaviour {
-    public enum Border { North, East, South, West };
-
     public static TileManager instance;
 
     public GameObject tilePrefab;
     public Sprite[] sprites;
 
-    private int displayWidth;
-    private int displayHeight;
+    public int displayWidth;
+    public int displayHeight;
     private TileController[,] displayTiles;
 
+    private CameraController camController;
     private Vector3 cameraBoundsTL;
     private Vector3 cameraBoundsBR;
     private IntVector2 tileTL = IntVector2.zero;
@@ -32,46 +31,21 @@ public class TileManager : MonoBehaviour {
             Debug.LogError("Tile sprites and TileTypes do not match!");
         }
 
-        ResizeDisplayBoard();
-        CameraController cam = Camera.main.GetComponent<CameraController>();
-        cam.RegisterOnCameraChanged(ResizeDisplayBoard);
+        camController = Camera.main.GetComponent<CameraController>();
+        if (camController == null) {
+            Debug.LogError("TileManager could not find main camera's controller.");
+        }
+
+        UpdateCameraBounds();
+        BuildDisplayBoard();
 	}
 
 	void Update() {
-        // Get the camera controller and see if it has moved recently. If it has
-        // not, then don't bother updating the displayed tiles.
-        CameraController cam = Camera.main.GetComponent<CameraController>();
-        if (cam == null || (cam.movement.x == 0 && cam.movement.y == 0)) {
-            return;
+        // If the camera controller moved this last frame, let's move our tiles
+        // to keep centered around it.
+        if (camController.movement.x != 0 || camController.movement.y != 0) {
+            MoveTiles();
         }
-
-        // On Update we will be adjusting the tiles that make up the displayed
-        // board area. When these tiles move beyond the bounds of the camera
-        // render area we move them to the opposite side of the board.
-        TileController topLeft = displayTiles[tileTL.x, tileTL.y];
-        TileController botRight = displayTiles[tileBR.x, tileBR.y];
-        Vector3 camTL = cam.transform.position + cameraBoundsTL;
-        Vector3 camBR = cam.transform.position + cameraBoundsBR;
-
-        // Shift the top or bottom row if either is out of bounds.
-        if (cam.movement.y > 0 && topLeft.transform.position.y < camTL.y) {
-            MoveTopRow(ref topLeft, ref botRight);
-        }
-        else if (cam.movement.y < 0 && botRight.transform.position.y > camBR.y) {
-            MoveBottomRow(ref topLeft, ref botRight);
-        }
-
-        // Do the same for the left and right columns.
-        if (cam.movement.x > 0 && topLeft.transform.position.x < camTL.x) {
-            MoveLeftColumn(ref topLeft, ref botRight);
-        }
-        else if (cam.movement.x < 0 && botRight.transform.position.x > camBR.x) {
-            MoveRightColumn(ref topLeft, ref botRight);
-        }
-
-        // Get the new corner tile indexes.
-        tileTL = topLeft.displayPosition;
-        tileBR = botRight.displayPosition;
 	}
 
     public void Redraw() {
@@ -84,12 +58,7 @@ public class TileManager : MonoBehaviour {
         }
     }
 
-    private void ResizeDisplayBoard() {
-        // First, destroy our existing board.
-        if (displayTiles != null) {
-            DestroyDisplayTiles();
-        }
-
+    private void UpdateCameraBounds() {
         // Find the bounds of the camera. These are used check the position of
         // tiles at the edges to see if they need to be moved.
         // Since this is an orthographic 2D game, we can directly use the
@@ -102,20 +71,67 @@ public class TileManager : MonoBehaviour {
         cameraBoundsTL -= Camera.main.transform.position;
         cameraBoundsBR -= Camera.main.transform.position;
         Debug.Log("Camera bounds: " + cameraBoundsTL + "; " + cameraBoundsBR);
+    }
 
-        // Adjust the camera bounds to have an extra layer of tiles around them.
-        Vector3 tileDims = new Vector3(1, 1, 0);
-        cameraBoundsTL -= tileDims;
-        cameraBoundsBR += tileDims;
+    private void MoveTiles() {
+        // To start, we need to figure out where the board's top-left and
+        // bottom-right corners _should_ be. This is determined simply from the
+        // position of the camera like this:
+        //
+        // TargetTop    = CameraY + HalfBoardHeight;
+        // TargetLeft   = CameraX - HalfBoardWidth;
+        // TargetBottom = TargetTop - BoardHeight;
+        // TargetRight  = TargetLeft + BoardWidth;
+        TileController topLeft  = displayTiles[tileTL.x, tileTL.y];
+        TileController botRight = displayTiles[tileBR.x, tileBR.y];
 
-        // Determine how many tiles we need to fill the camera view.
-        Vector3 cameraSize = cameraBoundsBR - cameraBoundsTL;
-        displayWidth = Mathf.CeilToInt(cameraSize.x);
-        displayHeight = Mathf.CeilToInt(cameraSize.y);
-        Debug.Log("New display size: " + displayWidth + "x" + displayHeight);
+        Vector2 targetTL = new Vector2(
+            camController.transform.position.x - (displayWidth / 2f),
+            camController.transform.position.y - (displayHeight / 2f)
+        );
+        Vector2 targetBR = new Vector2(
+            targetTL.x + (float)displayWidth,
+            targetTL.y + (float)displayHeight
+        );
+
+        // Now we know where the board _should_ be, so move the rows until they
+        // are close to where we want them. The moving functions will also
+        // update the top-left and bottom-right positions as they go, hence why
+        // they are passed in by reference.
+
+        // Move the top or bottom rows until they are at the target locations.
+        // Typically only one of these will run depending on the direction the
+        // camera moved.
+        while (topLeft.transform.position.y < targetTL.y) {
+            MoveTopRow(ref topLeft, ref botRight);
+        }
+        while (botRight.transform.position.y > targetBR.y) {
+            MoveBottomRow(ref topLeft, ref botRight);
+        }
+
+        // Do the same for the left and right columns.
+        while (topLeft.transform.position.x < targetTL.x) {
+            MoveLeftColumn(ref topLeft, ref botRight);
+        }
+        while (botRight.transform.position.x > targetBR.x) {
+            MoveRightColumn(ref topLeft, ref botRight);
+        }
+
+        // We've moved our tiles around, now store the positions in our
+        // displayTiles grid of the visually top-left and bottom-right tiles.
+        tileTL = topLeft.displayPosition;
+        tileBR = botRight.displayPosition;
+        Debug.Log("Top-Left: " + tileTL);
+        Debug.Log("Bottom-Right: " + tileBR);
+    }
+
+    private void BuildDisplayBoard() {
+        // First, destroy our existing board.
+        if (displayTiles != null) {
+            DestroyDisplayTiles();
+        }
 
         // Now construct the new tiles.
-        IntVector2 camGridTL = BoardManager.Board.WorldToGridPoint(cameraBoundsTL);
         displayTiles = new TileController[displayWidth, displayHeight];
         for (int x = 0; x < displayWidth; ++x) {
             for (int y = 0; y < displayHeight; ++y) {
@@ -127,14 +143,18 @@ public class TileManager : MonoBehaviour {
                 // Set up the tile's controller.
                 TileController controller = tile.GetComponent<TileController>();
                 controller.displayPosition = new IntVector2(x, y);
-                controller.MoveTo(x + camGridTL.x, y + camGridTL.y);
+                controller.MoveTo(x, y);
                 displayTiles[x, y] = controller;
             }
         }
 
         tileTL = new IntVector2(0, 0);
         tileBR = new IntVector2(displayWidth - 1, displayHeight - 1);
-        Debug.Log("Board constructed at " + camGridTL);
+        Debug.Log("Board constructed at " + displayWidth + "x" + displayHeight);
+
+        // After building the board we'll need to move the board to be centered
+        // around the screen.
+        MoveTiles();
     }
 
     private void DestroyDisplayTiles() {

@@ -12,6 +12,8 @@ public class CameraController : MonoBehaviour {
     public float minimumZoom;
     public float maximumZoom;
 
+    public bool resized {get; private set;}
+
     private Camera camera;
     private Action onCameraChanged;
     private Dragger3 mouseDrag;
@@ -22,11 +24,15 @@ public class CameraController : MonoBehaviour {
     }
 
 	void Update() {
+        resized = false;
         UpdateMovement();
         transform.position += movement;
 
         if (UpdateCameraSize()) {
-            onCameraChanged();
+            resized = true;
+            if (onCameraChanged != null) {
+                onCameraChanged();
+            }
         }
 	}
 
