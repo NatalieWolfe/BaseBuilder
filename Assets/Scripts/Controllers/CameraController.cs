@@ -5,11 +5,19 @@ using System;
 public class CameraController : MonoBehaviour {
     public Vector3 movement = Vector3.zero;
     public float speed;
+    public float speedScale;
 
+    [Range(0,2)]
+    public float zoomRate;
+    public float minimumZoom;
+    public float maximumZoom;
+
+    private Camera camera;
     private Action onCameraChanged;
     private Dragger3 mouseDrag;
 
     void Start() {
+        camera = GetComponent<Camera>();
         mouseDrag = new Dragger3(KeyCode.Mouse2);
     }
 
@@ -37,7 +45,7 @@ public class CameraController : MonoBehaviour {
     }
 
     private void UpdateMovementFromKeys() {
-        float dist = speed * Time.deltaTime;
+        float dist = speed * Time.deltaTime * camera.orthographicSize / speedScale;
         if (InputManager.Vertical > 0) {
             movement.y += dist;
         }
@@ -61,6 +69,16 @@ public class CameraController : MonoBehaviour {
     }
 
     private bool UpdateCameraSize() {
+        float zoom = Input.mouseScrollDelta.y;
+        if (Mathf.Abs(zoom) > Mathf.Epsilon) {
+            float size = camera.orthographicSize - zoom * zoomRate;
+            size = Math.Min(maximumZoom, Math.Max(minimumZoom, size));
+            if (size != camera.orthographicSize) {
+                camera.orthographicSize = size;
+                return true;
+            }
+        }
+
         return false;
     }
 }

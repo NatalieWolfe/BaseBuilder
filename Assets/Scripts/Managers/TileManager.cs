@@ -33,6 +33,8 @@ public class TileManager : MonoBehaviour {
         }
 
         ResizeDisplayBoard();
+        CameraController cam = Camera.main.GetComponent<CameraController>();
+        cam.RegisterOnCameraChanged(ResizeDisplayBoard);
 	}
 
 	void Update() {
