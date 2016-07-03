@@ -6,17 +6,22 @@ using System.Collections.Generic;
 public class BuildingManager : MonoBehaviour {
 
     public GameObject cursorPrefab;
-    public Board.TileType constructType;
+    public Board.TileType constructType; // TODO: Replace with "Tool" class.
 
     private PrefabPool cursorPool;
     private List<GameObject> cursors;
     private IntDragger2 cursorDrag;
+
+    private JobQueue.Job jobProto; // TODO: Remove after adding "Tool" class.
 
 	void Start() {
         cursors = new List<GameObject>();
         cursorPool = new PrefabPool(cursorPrefab);
         cursorPool.SetParent(transform);
         cursorDrag = new IntDragger2(KeyCode.Mouse0);
+
+        // TODO: Remove this after adding "Tool" class.
+        jobProto = WorkerManager.Jobs.MakeProtoJob();
 	}
 
 	void Update() {
@@ -32,7 +37,7 @@ public class BuildingManager : MonoBehaviour {
             // Release our currently displayed cursors.
             ReleaseCursors();
 
-            foreach (IntVector2 pos in cursorDrag.box.Positions()) {
+            foreach (IntVector2 pos in jobProto.ValidPositions(cursorDrag.box)) {
                 cursors.Add(cursorPool.Acquire(board.GridToWorldPoint(pos)));
             }
         }
@@ -42,11 +47,9 @@ public class BuildingManager : MonoBehaviour {
             // No need to display the cursors anymore, release them.
             ReleaseCursors();
 
-            foreach (IntVector2 pos in cursorDrag.box.Positions()) {
-                board.SetTileType(pos, constructType);
+            foreach (IntVector2 pos in jobProto.ValidPositions(cursorDrag.box)) {
+                WorkerManager.Jobs.AddJob(jobProto, pos);
             }
-
-            BoardManager.instance.BoardUpdated();
         }
     }
 

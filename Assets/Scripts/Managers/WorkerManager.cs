@@ -3,8 +3,10 @@ using System.Collections;
 
 public class WorkerManager : MonoBehaviour {
     public static WorkerManager instance;
+    public static JobQueue Jobs {get { return instance.jobs; }}
 
     public GameObject workerPrefab;
+    public JobQueue jobs {get; private set;}
 
 	void Start () {
         if (instance != null && instance != this) {
@@ -14,6 +16,7 @@ public class WorkerManager : MonoBehaviour {
         instance = this;
 
         // TODO: Manage work force based on demand.
+        jobs = new JobQueue();
         GameObject worker = (GameObject)Instantiate(workerPrefab);
         worker.transform.parent = transform;
 	}
