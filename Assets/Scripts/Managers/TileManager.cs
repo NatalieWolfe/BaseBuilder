@@ -14,8 +14,6 @@ public class TileManager : MonoBehaviour {
     private TileController[,] displayTiles;
 
     private CameraController camController;
-    private Vector3 cameraBoundsTL;
-    private Vector3 cameraBoundsBR;
     private IntVector2 tileTL = IntVector2.zero;
     private IntVector2 tileBR = IntVector2.zero;
 
@@ -36,7 +34,6 @@ public class TileManager : MonoBehaviour {
             Debug.LogError("TileManager could not find main camera's controller.");
         }
 
-        UpdateCameraBounds();
         BuildDisplayBoard();
 	}
 
@@ -58,21 +55,6 @@ public class TileManager : MonoBehaviour {
         }
     }
 
-    private void UpdateCameraBounds() {
-        // Find the bounds of the camera. These are used check the position of
-        // tiles at the edges to see if they need to be moved.
-        // Since this is an orthographic 2D game, we can directly use the
-        // camera's own pixel dimensions to determine the world-coords of the
-        // bounds.
-        cameraBoundsTL = Camera.main.ScreenToWorldPoint(Vector3.zero);
-        cameraBoundsBR = Camera.main.ScreenToWorldPoint(
-            new Vector3(Camera.main.pixelWidth, Camera.main.pixelHeight, 0)
-        );
-        cameraBoundsTL -= Camera.main.transform.position;
-        cameraBoundsBR -= Camera.main.transform.position;
-        Debug.Log("Camera bounds: " + cameraBoundsTL + "; " + cameraBoundsBR);
-    }
-
     private void MoveTiles() {
         // To start, we need to figure out where the board's top-left and
         // bottom-right corners _should_ be. This is determined simply from the
@@ -85,13 +67,14 @@ public class TileManager : MonoBehaviour {
         TileController topLeft  = displayTiles[tileTL.x, tileTL.y];
         TileController botRight = displayTiles[tileBR.x, tileBR.y];
 
+
         Vector2 targetTL = new Vector2(
             camController.transform.position.x - (displayWidth / 2f),
-            camController.transform.position.y - (displayHeight / 2f)
+            camController.transform.position.y + (displayHeight / 2f)
         );
         Vector2 targetBR = new Vector2(
             targetTL.x + (float)displayWidth,
-            targetTL.y + (float)displayHeight
+            targetTL.y - (float)displayHeight
         );
 
         // Now we know where the board _should_ be, so move the rows until they
@@ -102,10 +85,10 @@ public class TileManager : MonoBehaviour {
         // Move the top or bottom rows until they are at the target locations.
         // Typically only one of these will run depending on the direction the
         // camera moved.
-        while (topLeft.transform.position.y < targetTL.y) {
+        while (topLeft.transform.position.y > targetTL.y) {
             MoveTopRow(ref topLeft, ref botRight);
         }
-        while (botRight.transform.position.y > targetBR.y) {
+        while (botRight.transform.position.y < targetBR.y) {
             MoveBottomRow(ref topLeft, ref botRight);
         }
 
@@ -121,8 +104,7 @@ public class TileManager : MonoBehaviour {
         // displayTiles grid of the visually top-left and bottom-right tiles.
         tileTL = topLeft.displayPosition;
         tileBR = botRight.displayPosition;
-        Debug.Log("Top-Left: " + tileTL);
-        Debug.Log("Bottom-Right: " + tileBR);
+        Debug.Log("New corners: " + tileTL + ", " + tileBR)
     }
 
     private void BuildDisplayBoard() {
@@ -148,8 +130,8 @@ public class TileManager : MonoBehaviour {
             }
         }
 
-        tileTL = new IntVector2(0, 0);
-        tileBR = new IntVector2(displayWidth - 1, displayHeight - 1);
+        tileTL = new IntVector2(0, displayHeight - 1);
+        tileBR = new IntVector2(displayWidth - 1, 0);
         Debug.Log("Board constructed at " + displayWidth + "x" + displayHeight);
 
         // After building the board we'll need to move the board to be centered
@@ -174,7 +156,7 @@ public class TileManager : MonoBehaviour {
 
         for (int x = 0; x < displayWidth; ++x) {
             TileController controller = displayTiles[x, topDispRowY];
-            controller.MoveTo(controller.gridPosition.x, botGridRowY + 1);
+            controller.MoveTo(controller.gridPosition.x, botGridRowY - 1);
 
             if (rightMost == null || controller.IsRightOf(rightMost.gridPosition)) {
                 rightMost = controller;
@@ -184,7 +166,7 @@ public class TileManager : MonoBehaviour {
         botRight = rightMost;
         topLeft = displayTiles[
             topLeft.displayPosition.x,
-            (topLeft.displayPosition.y + 1) % displayHeight
+            (botRight.displayPosition.y - 1 + displayHeight) % displayHeight
         ];
     }
 
@@ -196,7 +178,7 @@ public class TileManager : MonoBehaviour {
 
         for (int x = 0; x < displayWidth; ++x) {
             TileController controller = displayTiles[x, botDispRowY];
-            controller.MoveTo(controller.gridPosition.x, topGridRowY - 1);
+            controller.MoveTo(controller.gridPosition.x, topGridRowY + 1);
 
             if (leftMost == null || controller.IsLeftOf(leftMost.gridPosition)) {
                 leftMost = controller;
@@ -206,7 +188,7 @@ public class TileManager : MonoBehaviour {
         topLeft = leftMost;
         botRight = displayTiles[
             botRight.displayPosition.x,
-            (botRight.displayPosition.y - 1 + displayHeight) % displayHeight
+            (topLeft.displayPosition.y + 1) % displayHeight
         ];
     }
 

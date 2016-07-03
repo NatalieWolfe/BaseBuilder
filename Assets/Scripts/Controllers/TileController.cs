@@ -45,11 +45,11 @@ public class TileController : MonoBehaviour {
     }
 
     public bool IsAbove(IntVector2 gridPos) {
-        return gridPosition.y < gridPos.y;
+        return gridPosition.y > gridPos.y;
     }
 
     public bool IsBelow(IntVector2 gridPos) {
-        return gridPosition.y > gridPos.y;
+        return gridPosition.y < gridPos.y;
     }
 
     public bool IsRightOf(IntVector2 gridPos) {
