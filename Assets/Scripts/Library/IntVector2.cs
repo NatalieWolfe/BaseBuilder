@@ -15,6 +15,16 @@ public class IntVector2 {
         this.y = y;
     }
 
+    public bool IsNextTo(IntVector2 pos) {
+        if (x == pos.x) {
+            return Math.Abs(y - pos.y) == 1;
+        }
+        else if (y == pos.y) {
+            return Math.Abs(x - pos.x) == 1;
+        }
+        return false;
+    }
+
     public override string ToString() {
         return String.Format("({0}, {1})", x, y);
     }
@@ -49,5 +59,12 @@ public class IntVector2 {
 
     public static bool operator!=(IntVector2 a, IntVector2 b) {
         return !(a == b);
+    }
+
+    public static IntVector2 operator-(IntVector2 a, IntVector2 b) {
+        return new IntVector2(
+            a.x - b.x,
+            a.y - b.y
+        );
     }
 }
