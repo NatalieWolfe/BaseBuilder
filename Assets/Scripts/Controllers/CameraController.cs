@@ -14,7 +14,7 @@ public class CameraController : MonoBehaviour {
 
     public bool resized {get; private set;}
 
-    private Camera camera;
+    private new Camera camera;
     private Action onCameraChanged;
     private Dragger3 mouseDrag;
 

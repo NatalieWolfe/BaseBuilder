@@ -67,7 +67,6 @@ public class TileManager : MonoBehaviour {
         TileController topLeft  = displayTiles[tileTL.x, tileTL.y];
         TileController botRight = displayTiles[tileBR.x, tileBR.y];
 
-
         Vector2 targetTL = new Vector2(
             camController.transform.position.x - (displayWidth / 2f),
             camController.transform.position.y + (displayHeight / 2f)
