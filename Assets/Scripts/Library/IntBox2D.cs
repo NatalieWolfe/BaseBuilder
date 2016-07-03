@@ -16,10 +16,9 @@ public class IntBox2D {
     }
 
     public IEnumerable<IntVector2> Positions() {
-        IntVector2 pos = IntVector2.zero;
-        for (pos.x = left; pos.x <= right; ++pos.x) {
-            for (pos.y = bottom; pos.y <= top; ++pos.y) {
-                yield return pos;
+        for (int x = left; x <= right; ++x) {
+            for (int y = bottom; y <= top; ++y) {
+                yield return new IntVector2(x, y);
             }
         }
     }
