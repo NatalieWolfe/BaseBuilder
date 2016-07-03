@@ -104,7 +104,7 @@ public class TileManager : MonoBehaviour {
         // displayTiles grid of the visually top-left and bottom-right tiles.
         tileTL = topLeft.displayPosition;
         tileBR = botRight.displayPosition;
-        Debug.Log("New corners: " + tileTL + ", " + tileBR)
+        Debug.Log("New corners: " + tileTL + ", " + tileBR);
     }
 
     private void BuildDisplayBoard() {
