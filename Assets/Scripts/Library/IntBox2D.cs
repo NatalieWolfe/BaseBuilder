@@ -3,10 +3,13 @@ using System;
 using System.Collections.Generic;
 
 public class IntBox2D {
-    public int top {get; private set;}
-    public int right {get; private set;}
-    public int bottom {get; private set;}
-    public int left {get; private set;}
+    public int top      {get; private set;}
+    public int right    {get; private set;}
+    public int bottom   {get; private set;}
+    public int left     {get; private set;}
+
+    public int height   {get { return top - bottom; }}
+    public int width    {get { return right - left; }}
 
     public IntBox2D(IntVector2 a, IntVector2 b) {
         left    = Math.Min(a.x, b.x);

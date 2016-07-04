@@ -1,6 +1,6 @@
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class IntVector2 {
@@ -23,6 +23,13 @@ public class IntVector2 {
             return Math.Abs(x - pos.x) == 1;
         }
         return false;
+    }
+
+    public IEnumerable<IntVector2> GetNeighbors() {
+        yield return new IntVector2(x, y + 1);  // North
+        yield return new IntVector2(x + 1, y);  // East
+        yield return new IntVector2(x, y - 1);  // South
+        yield return new IntVector2(x - 1, y);  // West
     }
 
     public override string ToString() {

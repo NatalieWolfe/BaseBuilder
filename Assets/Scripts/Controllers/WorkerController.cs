@@ -47,21 +47,8 @@ public class WorkerController : MonoBehaviour {
 	}
 
     private void BuildPathTo(IntVector2 position) {
-        if (gridPosition == position) {
-            path.Enqueue(new IntVector2(gridPosition.x - 1, gridPosition.y));
-            return;
-        }
-
-        IntVector2 next = gridPosition;
-        while (next.x != position.x) {
-            path.Enqueue(next);
-            next = new IntVector2(next.x + Clamp(position.x - next.x, -1, 1), next.y);
-        }
-
-        while (next.y != position.y) {
-            path.Enqueue(next);
-            next = new IntVector2(next.x, next.y + Clamp(position.y - next.y, -1, 1));
-        }
+        AStarResolver resolver = new AStarResolver();
+        path = resolver.FindPath(gridPosition, position);
     }
 
     private int Clamp(int a, int min, int max) {
