@@ -62,4 +62,9 @@ public class JobQueue {
         Job job = jobs.Dequeue();
         return job;
     }
+
+    public void UnclaimJob(Job job) {
+        // TODO: Store the job's priority and requeue it in the same position.
+        jobs.Enqueue(job);
+    }
 }

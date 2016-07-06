@@ -9,12 +9,14 @@ public class WorkerController : MonoBehaviour {
     private IntVector2 gridPosition;
     private JobQueue.Job job;
     private Queue<IntVector2> path;
+    private bool isWorking;
 
     // TODO: Add worker inventory.
 
     void Start() {
         job = null;
         path = new Queue<IntVector2>();
+        isWorking = true;
     }
 
 	void Update () {
@@ -24,6 +26,11 @@ public class WorkerController : MonoBehaviour {
 
         // Update our current grid position.
         gridPosition = BoardManager.WorldToGridPoint(transform.position);
+
+        if (!isWorking) {
+            // TODO: Add non-work jobs like eating, sleeping, or recreation.
+            return;
+        }
 
         // If we don't currently have a job, look for one.
         if (job == null) {
@@ -44,7 +51,10 @@ public class WorkerController : MonoBehaviour {
             RemoveLastPathItem();
 
             if (path == null) {
-                // Debug.LogError("Failed to build path to " + job.position);
+                Debug.LogError("Failed to build path to " + job.position);
+                Debug.LogError("Dropping job on the ground.")
+                job = null;
+                isWorking = false;
                 return;
             }
         }

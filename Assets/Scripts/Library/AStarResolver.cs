@@ -53,13 +53,18 @@ public class AStarResolver {
 
         int iterCounter = 0;
         while (openQueue.Count > 0 && ++iterCounter < MAX_ITERATIONS) {
-            // Pop the next element and check if we've reached the target with a
-            // viable path.
+            // Pop the next element draw a line for debugging.
             Node current = openQueue.Dequeue();
             current.closed = true;
-
             DebugDraw(current, current.previous, Color.white);
-            if (current.position == start && current.costToEnd < MAX_COST) {
+
+            // If this is a node that we know costs too much to use, then skip.
+            if (current.costToHere >= MAX_COST) {
+                continue;
+            }
+
+            // If we've reached the end, build a path to it and return.
+            if (current.position == start) {
                 return BuildPathFromNode(current);
             }
 
