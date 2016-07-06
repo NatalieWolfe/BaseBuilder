@@ -2,14 +2,14 @@
 using System;
 using System.Collections.Generic;
 
-public class PriorityQueue<T> {
+public class PriorityQueue<P, T> where P: IComparable<P> {
     private class Node {
         public T val;
-        public int priority;
+        public P priority;
         public Node left = null;
         public Node right = null;
 
-        public Node(int priority, T val) {
+        public Node(P priority, T val) {
             this.val = val;
             this.priority = priority;
         }
@@ -24,7 +24,7 @@ public class PriorityQueue<T> {
         root = null;
     }
 
-    public void Enqueue(int priority, T val) {
+    public void Enqueue(P priority, T val) {
         ++Count;
         EnqueueNode(new Node(priority, val));
     }
@@ -51,13 +51,13 @@ public class PriorityQueue<T> {
         return next.val;
     }
 
-    public void Requeue(int oldPriority, int newPriority, T val) {
+    public void Requeue(P oldPriority, P newPriority, T val) {
         Node requeueParent = FindParentNode(oldPriority, val);
         Node toRequeue = null;
         if (requeueParent == null) {
             toRequeue = root;
         }
-        else if (oldPriority < requeueParent.priority) {
+        else if (oldPriority.CompareTo(requeueParent.priority) < 0) {
             toRequeue = requeueParent.left;
         }
         else {
@@ -92,12 +92,12 @@ public class PriorityQueue<T> {
         }
     }
 
-    private Node FindParentNode(int priority) {
+    private Node FindParentNode(P priority) {
         Node prev = null;
         Node next = root;
         while (next != null) {
             prev = next;
-            if (priority < next.priority) {
+            if (priority.CompareTo(next.priority) < 0) {
                 next = next.left;
             }
             else {
@@ -107,12 +107,12 @@ public class PriorityQueue<T> {
         return prev;
     }
 
-    private Node FindParentNode(int priority, T val) {
+    private Node FindParentNode(P priority, T val) {
         Node prev = null;
         Node next = root;
         while (next != null && !Object.ReferenceEquals(next.val, val)) {
             prev = next;
-            if (priority < next.priority) {
+            if (priority.CompareTo(next.priority) < 0) {
                 next = next.left;
             }
             else {
@@ -127,7 +127,7 @@ public class PriorityQueue<T> {
         if (parent == null) {
             root = node;
         }
-        else if (node.priority < parent.priority) {
+        else if (node.priority.CompareTo(parent.priority) < 0) {
             parent.left = node;
         }
         else {
@@ -166,7 +166,7 @@ public class PriorityQueue<T> {
         if (parent == null) {
             root = toShift;
         }
-        else if (toRemove.priority < parent.priority) {
+        else if (toRemove.priority.CompareTo(parent.priority) < 0) {
             parent.left = toShift;
         }
         else {
