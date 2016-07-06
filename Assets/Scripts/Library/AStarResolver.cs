@@ -8,8 +8,8 @@ public class AStarResolver {
     private class Node {
         public Node previous = null;
         public IntVector2 position;
-        public int costToHere = Int32.MaxValue;
-        public int costToEnd = Int32.MaxValue;
+        public ulong costToHere = Int32.MaxValue;
+        public ulong costToEnd = Int32.MaxValue;
         public bool closed = false;
 
         public Node(IntVector2 position) {
@@ -21,18 +21,20 @@ public class AStarResolver {
 
     public Queue<IntVector2> FindPath(IntVector2 start, IntVector2 end) {
         // NOTE:
-        //  We run the path backwards, from the end to the start, for one simple
+        //  We run the path backwards, from the end to the start for one simple
         //  reason: when building the path we create a queue going from our last
         //  node in the solution to the first. By doing it backwards, we'll
-        //  finish our solution at the starting point and don't have to reverse
-        //  the order before enqueueing it.
+        //  finish our solution at the starting point and thus start our path
+        //  from the starting point. Otherwise we'd have to reverse the path
+        //  after reconstructing it.
 
-        int xDist = Math.Abs(start.x - end.x);
-        int yDist = Math.Abs(start.y - end.y);
-        Dictionary<IntVector2, Node> encounteredNodes = new Dictionary<IntVector2, Node>();
+        ulong xDist = (ulong)Math.Abs(start.x - end.x);
+        ulong yDist = (ulong)Math.Abs(start.y - end.y);
+        Dictionary<IntVector2, Node> encounteredNodes
+            = new Dictionary<IntVector2, Node>();
 
         Node endNode = new Node(end);
-        PriorityQueue<Node> openQueue = new PriorityQueue<Node>();
+        PriorityQueue<ulong, Node> openQueue = new PriorityQueue<ulong, Node>();
         openQueue.Enqueue(xDist + yDist, endNode);
         encounteredNodes.Add(end, endNode);
 
@@ -46,9 +48,9 @@ public class AStarResolver {
             }
 
             // Not at the target, so check each of this node's neighbors.
-            int neighborCostToHere = current.costToHere + 1;
+            ulong neighborCostToHere = current.costToHere + 1;
             foreach (IntVector2 neighbor in current.position.GetNeighbors()) {
-                int neighborCostToEnd = neighborCostToHere + DistanceBetween(neighbor, start);
+                ulong neighborCostToEnd = neighborCostToHere + DistanceBetween(neighbor, start);
                 Node neighborNode;
                 if (!encounteredNodes.TryGetValue(neighbor, out neighborNode)) {
                     // Found a new node in the graph, add it to our queue.
@@ -85,8 +87,8 @@ public class AStarResolver {
         return null;
     }
 
-    private int DistanceBetween(IntVector2 a, IntVector2 b) {
-        return Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
+    private ulong DistanceBetween(IntVector2 a, IntVector2 b) {
+        return (ulong)(Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y));
     }
 
     private Queue<IntVector2> BuildPathFromNode(Node node) {
