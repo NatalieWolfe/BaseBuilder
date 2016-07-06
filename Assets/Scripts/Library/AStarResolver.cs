@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 
 public class AStarResolver {
-    private static ulong MAX_COST = (ulong)(UInt32.MaxValue / 2);
+    public static ulong MAX_COST = (ulong)(UInt32.MaxValue / 2);
     private static int MAX_ITERATIONS = 10000;
     private static float DRAW_LIFETIME = 5f;
 
@@ -20,7 +20,11 @@ public class AStarResolver {
         }
     }
 
-    public AStarResolver() {}
+    private Board board;
+
+    public AStarResolver(Board board) {
+        this.board = board;
+    }
 
     public Queue<IntVector2> FindPath(IntVector2 start, IntVector2 end) {
         // If we're on top of our target already, just exit.
@@ -60,19 +64,20 @@ public class AStarResolver {
             }
 
             // Not at the target, so check each of this node's neighbors.
-            ulong neighborCostToHere = current.costToHere + 1;
             foreach (IntVector2 neighbor in current.position.GetNeighbors()) {
-                ulong neighborCostToEnd = neighborCostToHere + DistanceBetween(neighbor, start);
+                ulong costToHere = current.costToHere + GetTileCost(neighbor);
+                ulong costToEnd = costToHere + DistanceBetween(neighbor, start);
+
                 Node neighborNode;
                 if (!encounteredNodes.TryGetValue(neighbor, out neighborNode)) {
                     // Found a new node in the graph, add it to our queue.
                     neighborNode = new Node(neighbor);
-                    openQueue.Enqueue(neighborCostToEnd, neighborNode);
+                    openQueue.Enqueue(costToEnd, neighborNode);
                     encounteredNodes.Add(neighbor, neighborNode);
                 }
                 else if (
                     neighborNode.closed ||
-                    neighborNode.costToHere <= neighborCostToHere
+                    neighborNode.costToHere <= costToHere
                 ) {
                     // Skip nodes that we've already closed and skip paths that
                     // are no more efficient than ones we've already found.
@@ -81,11 +86,7 @@ public class AStarResolver {
                 else {
                     // This is a node in the queue and we have a better score
                     // for it. It needs to be requeued.
-                    openQueue.Requeue(
-                        neighborNode.costToEnd,
-                        neighborCostToEnd,
-                        neighborNode
-                    );
+                    openQueue.Requeue(neighborNode.costToEnd, costToEnd, neighborNode);
                 }
 
                 DebugDraw(current, neighborNode, Color.blue);
@@ -93,12 +94,21 @@ public class AStarResolver {
                 // We have found the best path to this node so far. Update its
                 // costs and node chain.
                 neighborNode.previous = current;
-                neighborNode.costToHere = neighborCostToHere;
-                neighborNode.costToEnd = neighborCostToEnd;
+                neighborNode.costToHere = costToHere;
+                neighborNode.costToEnd = costToEnd;
             }
         }
 
         return null;
+    }
+
+    private ulong GetTileCost(IntVector2 pos) {
+        Board.Tile tile = board.GetTile(pos);
+        if (tile == null) {
+            return MAX_COST;
+        }
+
+        return tile.GetHinderance();
     }
 
     private ulong DistanceBetween(IntVector2 a, IntVector2 b) {

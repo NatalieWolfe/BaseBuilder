@@ -58,7 +58,7 @@ public class WorkerController : MonoBehaviour {
 	}
 
     private void BuildPathTo(IntVector2 position) {
-        AStarResolver resolver = new AStarResolver();
+        AStarResolver resolver = new AStarResolver(BoardManager.Board);
         path = resolver.FindPath(gridPosition, position);
     }
 
@@ -103,7 +103,7 @@ public class WorkerController : MonoBehaviour {
     }
 
     private void RemoveLastPathItem() {
-        if (path.Count < 2) {
+        if (path == null || path.Count < 2) {
             return;
         }
 

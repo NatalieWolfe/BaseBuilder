@@ -1,4 +1,5 @@
 
+using UnityEngine; // For Debug.Log
 using System;
 using System.Collections.Generic;
 
@@ -64,6 +65,14 @@ public class PriorityQueue<P, T> where P: IComparable<P> {
             toRequeue = requeueParent.right;
         }
 
+        // If we didn't find the value, then this item isn't actually in our
+        // queue and we should just enqueue it as normal.
+        if (toRequeue == null) {
+            Debug.LogError("Requeueing item not in queue.");
+            Enqueue(newPriority, val);
+            return;
+        }
+
         RemoveNode(requeueParent, toRequeue);
 
         // Finally, requeue the node.
@@ -110,7 +119,7 @@ public class PriorityQueue<P, T> where P: IComparable<P> {
     private Node FindParentNode(P priority, T val) {
         Node prev = null;
         Node next = root;
-        while (next != null && !Object.ReferenceEquals(next.val, val)) {
+        while (next != null && !System.Object.ReferenceEquals(next.val, val)) {
             prev = next;
             if (priority.CompareTo(next.priority) < 0) {
                 next = next.left;
