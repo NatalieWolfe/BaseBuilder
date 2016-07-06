@@ -4,12 +4,15 @@ using System;
 using System.Collections.Generic;
 
 public class AStarResolver {
+    private static ulong MAX_COST = (ulong)(UInt32.MaxValue / 2);
+    private static int MAX_ITERATIONS = 10000;
+    private static float DRAW_LIFETIME = 5f;
 
     private class Node {
         public Node previous = null;
         public IntVector2 position;
-        public ulong costToHere = Int32.MaxValue;
-        public ulong costToEnd = Int32.MaxValue;
+        public ulong costToHere = MAX_COST;
+        public ulong costToEnd = MAX_COST;
         public bool closed = false;
 
         public Node(IntVector2 position) {
@@ -20,6 +23,11 @@ public class AStarResolver {
     public AStarResolver() {}
 
     public Queue<IntVector2> FindPath(IntVector2 start, IntVector2 end) {
+        // If we're on top of our target already, just exit.
+        if (start == end) {
+            return new Queue<IntVector2>();
+        }
+
         // NOTE:
         //  We run the path backwards, from the end to the start for one simple
         //  reason: when building the path we create a queue going from our last
@@ -34,16 +42,20 @@ public class AStarResolver {
             = new Dictionary<IntVector2, Node>();
 
         Node endNode = new Node(end);
+        endNode.costToHere = 0;
         PriorityQueue<ulong, Node> openQueue = new PriorityQueue<ulong, Node>();
         openQueue.Enqueue(xDist + yDist, endNode);
         encounteredNodes.Add(end, endNode);
 
-        while (openQueue.Count > 0) {
+        int iterCounter = 0;
+        while (openQueue.Count > 0 && ++iterCounter < MAX_ITERATIONS) {
             // Pop the next element and check if we've reached the target with a
             // viable path.
             Node current = openQueue.Dequeue();
             current.closed = true;
-            if (current.position == start && current.costToEnd < Int32.MaxValue) {
+
+            DebugDraw(current, current.previous, Color.white);
+            if (current.position == start && current.costToEnd < MAX_COST) {
                 return BuildPathFromNode(current);
             }
 
@@ -76,6 +88,8 @@ public class AStarResolver {
                     );
                 }
 
+                DebugDraw(current, neighborNode, Color.blue);
+
                 // We have found the best path to this node so far. Update its
                 // costs and node chain.
                 neighborNode.previous = current;
@@ -94,11 +108,31 @@ public class AStarResolver {
     private Queue<IntVector2> BuildPathFromNode(Node node) {
         Queue<IntVector2> path = new Queue<IntVector2>();
         Node step = node.previous;
+        DebugDraw(node, step, Color.green);
         while (step != null) {
+            DebugDraw(step, step.previous, Color.green);
             path.Enqueue(step.position);
             step = step.previous;
         }
         return path;
+    }
+
+    private void DebugDraw(Node start, Node end, Color color) {
+        if (start != null && end != null) {
+            DebugDraw(start.position, end.position, color);
+        }
+    }
+
+    private void DebugDraw(IntVector2 start, IntVector2 end, Color color) {
+        if (Debug.isDebugBuild) {
+            Debug.DrawLine(
+                BoardManager.GridToWorldPoint(start),
+                BoardManager.GridToWorldPoint(end),
+                color,
+                DRAW_LIFETIME,
+                false
+            );
+        }
     }
 }
 
