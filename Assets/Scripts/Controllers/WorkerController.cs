@@ -35,10 +35,21 @@ public class WorkerController : MonoBehaviour {
             job = WorkerManager.Jobs.ClaimJob();
         }
 
-        if (!gridPosition.IsNextTo(job.position)) {
-            if (path.Count == 0) {
-                BuildPathTo(job.position);
+        if ((path == null || path.Count == 0) && !gridPosition.IsNextTo(job.position)) {
+            BuildPathTo(job.position);
+
+            // The path constructed above will go all the way to the tile
+            // provided, but for jobs we want to go _next_ to the tile, so
+            // we must remove the last item in the queue.
+            RemoveLastPathItem();
+
+            if (path == null) {
+                // Debug.LogError("Failed to build path to " + job.position);
+                return;
             }
+        }
+
+        if (path.Count > 0) {
             Move();
         }
         else {
@@ -56,6 +67,10 @@ public class WorkerController : MonoBehaviour {
     }
 
     private void Move() {
+        if (path.Count == 0) {
+            return;
+        }
+
         IntVector2 next = path.Peek();
         Vector3 worldNext = BoardManager.GridToWorldPoint(next);
         worldNext.z = transform.position.z;
@@ -85,5 +100,18 @@ public class WorkerController : MonoBehaviour {
             job = null;
             BoardManager.instance.BoardUpdated();
         }
+    }
+
+    private void RemoveLastPathItem() {
+        if (path.Count < 2) {
+            return;
+        }
+
+        IntVector2 first = path.Peek();
+        IntVector2 current = path.Dequeue();
+        do {
+            path.Enqueue(current);
+            current = path.Dequeue();
+        } while (path.Peek() != first);
     }
 }
