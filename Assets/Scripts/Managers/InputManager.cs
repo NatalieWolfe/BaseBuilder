@@ -13,14 +13,11 @@ public class InputManager : MonoBehaviour {
     public static bool MouseLeftPressed;
     public static bool MouseLeftUp;
 
-    private Vector3 worldGridOffset = new Vector3(0.5f, 0.5f, 0.0f);
 
 	void Update () {
         // Update our mouse position.
         MouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        MouseGridPosition = BoardManager.WorldToGridPoint(
-            MouseWorldPosition + worldGridOffset
-        );
+        MouseGridPosition = BoardManager.WorldToGridPoint(MouseWorldPosition);
 
         // Determine the state of our inputs.
         Horizontal = Input.GetAxis("Horizontal");

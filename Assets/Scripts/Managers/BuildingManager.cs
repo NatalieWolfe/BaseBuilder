@@ -30,7 +30,6 @@ public class BuildingManager : MonoBehaviour {
 
     private void UpdateCursorDrag() {
         cursorDrag.Update();
-        Board board = BoardManager.Board;
 
         // Mouse is down, update cursor.
         if (cursorDrag.dragging) {
@@ -38,7 +37,7 @@ public class BuildingManager : MonoBehaviour {
             ReleaseCursors();
 
             foreach (IntVector2 pos in jobProto.ValidPositions(cursorDrag.box)) {
-                cursors.Add(cursorPool.Acquire(board.GridToWorldPoint(pos)));
+                cursors.Add(cursorPool.Acquire(BoardManager.GridToWorldPoint(pos)));
             }
         }
 

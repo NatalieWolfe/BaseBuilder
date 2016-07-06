@@ -6,19 +6,27 @@ public class BoardManager : MonoBehaviour {
     public static Board Board {get { return instance.board; }}
 
     public static IntVector2 WorldToGridPoint(Vector3 pos) {
-        return instance.board.WorldToGridPoint(pos);
+        // Grid origin (0, 0) is world origin (0, 0, 0). Thus, moving from
+        // world positions to grid positions is as simple as taking the
+        // floor of the world pos divided by the tile size.
+        return new IntVector2(
+            Mathf.FloorToInt(pos.x + 0.5f),
+            Mathf.FloorToInt(pos.y + 0.5f)
+        );
     }
 
     public static Vector3 GridToWorldPoint(IntVector2 pos) {
-        return instance.board.GridToWorldPoint(pos);
+        return GridToWorldPoint(pos.x, pos.y);
     }
 
     public static Vector3 GridToWorldPoint(int x, int y) {
-        return GridToWorldPoint(new IntVector2(x, y));
+        // Like world-to-grid, we can rely on the matching origins to
+        // simplify converting between grid and world coordinates.
+        return new Vector3((float)x, (float)y, 0f);
     }
 
     public static IntVector2 ScreenToGridPoint(Vector3 pos) {
-        return instance.board.WorldToGridPoint(Camera.main.ScreenToWorldPoint(pos));
+        return WorldToGridPoint(Camera.main.ScreenToWorldPoint(pos));
     }
 
     public Board board;

@@ -32,7 +32,7 @@ public class TileController : MonoBehaviour {
     public void MoveTo(IntVector2 gridPos) {
         // Update our position in the world.
         gridPosition = gridPos;
-        Vector3 newPos = BoardManager.Board.GridToWorldPoint(gridPos);
+        Vector3 newPos = BoardManager.GridToWorldPoint(gridPos);
         newPos.z = transform.position.z;
         transform.position = newPos;
 
@@ -61,6 +61,8 @@ public class TileController : MonoBehaviour {
     }
 
     void OnMouseDown() {
-        Debug.Log("Clicked " + gridPosition);
+        Debug.Log(
+            "Clicked " + gridPosition + " (mouse " + InputManager.MouseGridPosition + ")"
+        );
     }
 }
