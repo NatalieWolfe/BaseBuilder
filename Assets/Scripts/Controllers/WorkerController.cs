@@ -51,6 +51,8 @@ public class WorkerController : MonoBehaviour {
             RemoveLastPathItem();
 
             if (path == null) {
+                // TODO:    Determine if the failure to path was because the
+                //          worker is boxed in or if the job is boxed in.
                 Debug.LogError("Failed to build path to " + job.position);
                 Debug.LogError("Dropping job on the ground.")
                 job = null;
@@ -106,7 +108,7 @@ public class WorkerController : MonoBehaviour {
     }
 
     private void WorkOnJob() {
-        if (job.Update()) {
+        if (job != null && job.Update()) {
             job = null;
             BoardManager.instance.BoardUpdated();
         }
