@@ -70,6 +70,14 @@ public class Board {
             return hinderance;
         }
 
+        public IEnumerable<Tile> GetNeighbors() {
+            foreach (IntVector2 pos in position.GetNeighbors()) {
+                if (board.IsOnBoard(pos)) {
+                    yield return board.GetTile(pos);
+                }
+            }
+        }
+
         public override string ToString() {
             return "Tile" + position;
         }
