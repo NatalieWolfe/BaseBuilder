@@ -19,6 +19,26 @@ public class IntVector2 {
         return (Math.Abs(x - pos.x) + Math.Abs(y - pos.y)) == 1;
     }
 
+    public bool IsBetween(IntVector2 a, IntVector2 b) {
+        return (new IntBox2D(a, b)).Contains(this);
+    }
+
+    public bool IsAbove(IntVector2 pos) {
+        return y > pos.y;
+    }
+
+    public bool IsBelow(IntVector2 pos) {
+        return y < pos.y;
+    }
+
+    public bool IsRightOf(IntVector2 pos) {
+        return x > pos.x;
+    }
+
+    public bool IsLeftOf(IntVector2 pos) {
+        return x < pos.x;
+    }
+
     public IEnumerable<IntVector2> GetNeighbors() {
         yield return new IntVector2(x, y + 1);  // North
         yield return new IntVector2(x + 1, y);  // East
