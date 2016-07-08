@@ -18,6 +18,10 @@ public class IntBox2D {
         top     = Math.Max(a.y, b.y);
     }
 
+    public bool Contains(IntVector2 pos) {
+        return pos.y >= bottom && pos.y <= top && pos.x >= left && pos.x <= right;
+    }
+
     public IEnumerable<IntVector2> Positions() {
         for (int x = left; x <= right; ++x) {
             for (int y = bottom; y <= top; ++y) {
