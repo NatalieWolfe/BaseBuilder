@@ -35,6 +35,7 @@ public class TileManager : MonoBehaviour {
         }
 
         BuildDisplayBoard();
+        BoardManager.Board.RegisterOnTileUpdated(OnTileUpdated);
 	}
 
 	void Update() {
@@ -46,12 +47,8 @@ public class TileManager : MonoBehaviour {
 	}
 
     public void Redraw() {
-        Board board = BoardManager.Board;
-        for (int x = 0; x < displayWidth; ++x) {
-            for (int y = 0; y < displayHeight; ++y) {
-                TileController controller = displayTiles[x, y];
-                controller.SetType(board.GetTileType(controller.gridPosition));
-            }
+        foreach (TileController controller in displayTiles) {
+            controller.Render();
         }
     }
 
@@ -138,10 +135,8 @@ public class TileManager : MonoBehaviour {
     }
 
     private void DestroyDisplayTiles() {
-        for (int x = 0; x < displayWidth; ++x) {
-            for (int y = 0; y < displayHeight; ++y) {
-                Destroy(displayTiles[x, y].gameObject);
-            }
+        foreach (TileController controller in displayTiles) {
+            Destroy(controller.gameObject);
         }
         displayTiles = null;
     }
@@ -232,5 +227,47 @@ public class TileManager : MonoBehaviour {
             (botRight.displayPosition.x - 1 + displayWidth) % displayWidth,
             botRight.displayPosition.y
         ];
+    }
+
+    private void OnTileUpdated(Board.Tile tile) {
+        // Get the controller and check that we actually found one. If the tile
+        // isn't being displayed currently, then GetTileController returns null.
+        TileController controller = GetTileController(tile);
+        if (controller != null) {
+            controller.TileUpdated();
+        }
+    }
+
+    private bool IsDisplayed(Board.Tile tile) {
+        IntVector2 topLeft      = displayTiles[tileTL.x, tileTL.y].gridPosition;
+        IntVector2 bottomRight  = displayTiles[tileBR.x, tileBR.y].gridPosition;
+
+        return tile.position.IsBetween(topLeft, bottomRight);
+    }
+
+    private TileController GetTileController(Board.Tile tile) {
+        // Figure out where this tile exists within our displayed board. Assuming
+        // the tile is currently displayed we know its grid position will be
+        // right of (tile.x > TL.x) and below (tile.y < TL.y) the top-left tile.
+        TileController topLeft = displayTiles[tileTL.x, tileTL.y];
+        int xOffset = tile.position.x - topLeft.gridPosition.x; // Positive
+        int yOffset = tile.position.y - topLeft.gridPosition.y; // Negative
+
+        if (
+            xOffset < 0 || xOffset > displayWidth ||
+            yOffset > 0 || yOffset < -displayHeight
+        ) {
+            // This tile is not being displayed, thus we don't have a tile
+            // controller for it at this time.
+            return null;
+        }
+
+        // Now we know our grid offset, so calculate our display offset,
+        // adjusting for wrapping around the display board.
+        int displayX = (topLeft.displayPosition.x + xOffset) % displayWidth;
+        int displayY = (topLeft.displayPosition.y + yOffset + displayHeight) % displayHeight;
+
+        // And viola, we have a tile controller.
+        return displayTiles[displayX, displayY];
     }
 }

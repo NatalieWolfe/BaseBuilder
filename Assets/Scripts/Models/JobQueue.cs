@@ -1,4 +1,5 @@
 
+using UnityEngine; // For Debug.Log
 using System.Collections.Generic;
 
 public class JobQueue {
@@ -27,7 +28,18 @@ public class JobQueue {
             // TODO:    Take in an "effort" or "work" amount to subtract from
             //          the job's time-to-completion meter. When meter reaches
             //          zero, job is completed so return true.
-            BoardManager.Board.SetTileType(position, Board.TileType.Edge);
+            Board.Tile tile = BoardManager.Board.GetTile(position);
+            if (tile.HasLargeItem()) {
+                Debug.LogError(
+                    "Dropping job, Tile" + position + " already has large item."
+                );
+                return true; // TODO: Replace with some other status check.
+            }
+
+            Item.Wall wall = new Item.Wall();
+            wall.position = position;
+            tile.SetLargeItem(wall);
+
             return true;
         }
 

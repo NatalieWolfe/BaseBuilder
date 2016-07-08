@@ -7,6 +7,7 @@ public class TileController : MonoBehaviour {
     public Board.TileType type = Board.TileType.Edge;
     public IntVector2 gridPosition;
     public IntVector2 displayPosition;
+    public Board.Tile tile;
 
     private SpriteRenderer spriteRenderer;
 
@@ -36,8 +37,9 @@ public class TileController : MonoBehaviour {
         newPos.z = transform.position.z;
         transform.position = newPos;
 
-        // Update our type based on our grid position.
-        SetType(BoardManager.Board.GetTileType(gridPos));
+        // Update the tile and render it.
+        tile = BoardManager.Board.GetTile(gridPosition);
+        Render();
     }
 
     public void MoveTo(int x, int y) {
@@ -45,24 +47,44 @@ public class TileController : MonoBehaviour {
     }
 
     public bool IsAbove(IntVector2 gridPos) {
-        return gridPosition.y > gridPos.y;
+        return gridPosition.IsAbove(gridPos);
     }
 
     public bool IsBelow(IntVector2 gridPos) {
-        return gridPosition.y < gridPos.y;
+        return gridPosition.IsBelow(gridPos);
     }
 
     public bool IsRightOf(IntVector2 gridPos) {
-        return gridPosition.x > gridPos.x;
+        return gridPosition.IsRightOf(gridPos);
     }
 
     public bool IsLeftOf(IntVector2 gridPos) {
-        return gridPosition.x < gridPos.x;
+        return gridPosition.IsLeftOf(gridPos);
     }
 
     void OnMouseDown() {
         Debug.Log(
             "Clicked " + gridPosition + " (mouse " + InputManager.MouseGridPosition + ")"
         );
+    }
+
+    public void TileUpdated() {
+        Render();
+    }
+
+    public void Render() {
+        // TODO: Render a sprite for each item on the tile.
+        if (tile == null) {
+            SetType(Board.TileType.Edge);
+        }
+        else if (tile.HasLargeItem()) {
+            Debug.Log("Tile" + gridPosition + " has a large item!");
+
+            // TODO: Render the large item.
+            SetType(Board.TileType.Edge);
+        }
+        else {
+            SetType(tile.type);
+        }
     }
 }

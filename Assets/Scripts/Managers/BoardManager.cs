@@ -31,8 +31,6 @@ public class BoardManager : MonoBehaviour {
 
     public Board board;
 
-    private bool boardUpdated;
-
 	void Start() {
         if (instance != null && instance != this) {
             Destroy(this);
@@ -42,17 +40,6 @@ public class BoardManager : MonoBehaviour {
 
         // TODO: Make board generation dynamic.
         board = new Board(50, 50);
-        boardUpdated = false;
 	}
 
-    void Update() {
-        if (boardUpdated) {
-            boardUpdated = false;
-            TileManager.instance.Redraw();
-        }
-    }
-
-    public void BoardUpdated() {
-        boardUpdated = true;
-    }
 }

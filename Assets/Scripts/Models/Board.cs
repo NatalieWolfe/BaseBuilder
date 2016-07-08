@@ -1,5 +1,6 @@
 
 using UnityEngine; // For Debug.Log
+using System;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -36,6 +37,7 @@ public class Board {
                 return;
             }
             largeItem = item;
+            board.TileUpdated(this);
         }
 
         public void RemoveLargeItem() {
@@ -43,6 +45,7 @@ public class Board {
                 Debug.Log(this + " dropping small items on floor.");
             }
             this.largeItem = null;
+            board.TileUpdated(this);
         }
 
         public bool HasSmallItems() {
@@ -59,6 +62,7 @@ public class Board {
                 return;
             }
             smallItems.Add(item);
+            board.TileUpdated(this);
         }
 
         public ulong GetHinderance() {
@@ -92,6 +96,8 @@ public class Board {
     public int width;
     public int height;
     public Tile[,] tiles;
+
+    private Action<Tile> onTileUpdated;
 
     public Board(int _width, int _height) {
         width = _width;
@@ -127,5 +133,19 @@ public class Board {
 
     public void SetTileType(IntVector2 pos, TileType type) {
         tiles[pos.x, pos.y].type = type;
+    }
+
+    public void RegisterOnTileUpdated(Action<Tile> action) {
+        onTileUpdated += action;
+    }
+
+    public void UnregisterOnTileUpdated(Action<Tile> action) {
+        onTileUpdated -= action;
+    }
+
+    public void TileUpdated(Tile tile) {
+        if (onTileUpdated != null) {
+            onTileUpdated(tile);
+        }
     }
 }

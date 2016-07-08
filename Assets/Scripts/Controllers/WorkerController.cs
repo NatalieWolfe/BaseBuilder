@@ -110,7 +110,6 @@ public class WorkerController : MonoBehaviour {
     private void WorkOnJob() {
         if (job != null && job.Update()) {
             job = null;
-            BoardManager.instance.BoardUpdated();
         }
     }
 
