@@ -54,7 +54,7 @@ public class WorkerController : MonoBehaviour {
                 // TODO:    Determine if the failure to path was because the
                 //          worker is boxed in or if the job is boxed in.
                 Debug.LogError("Failed to build path to " + job.position);
-                Debug.LogError("Dropping job on the ground.")
+                Debug.LogError("Dropping job on the ground.");
                 job = null;
                 isWorking = false;
                 return;

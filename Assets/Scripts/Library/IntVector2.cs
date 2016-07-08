@@ -16,13 +16,7 @@ public class IntVector2 {
     }
 
     public bool IsNextTo(IntVector2 pos) {
-        if (x == pos.x) {
-            return Math.Abs(y - pos.y) == 1;
-        }
-        else if (y == pos.y) {
-            return Math.Abs(x - pos.x) == 1;
-        }
-        return false;
+        return (Math.Abs(x - pos.x) + Math.Abs(y - pos.y)) == 1;
     }
 
     public IEnumerable<IntVector2> GetNeighbors() {
