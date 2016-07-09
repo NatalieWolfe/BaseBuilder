@@ -115,6 +115,7 @@ public class Board {
     public Tile[,] tiles;
 
     private Action<Events.TileEvent> onTileEvent;
+    private Dictionary<LargeItem, Tile> largeItemMap = new Dictionary<LargeItem, Tile>();
 
     public Board(int _width, int _height) {
         width = _width;
@@ -130,15 +131,23 @@ public class Board {
     }
 
     public bool IsOnBoard(IntVector2 pos) {
-        return pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height;
+        return IsOnBoard(pos.x, pos.y);
+    }
+
+    public bool IsOnBoard(int x, int y) {
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     public Tile GetTile(IntVector2 pos) {
-        if (!IsOnBoard(pos)) {
+        return GetTile(pos.x, pos.y);
+    }
+
+    public Tile GetTile(int x, int y) {
+        if (!IsOnBoard(x, y)) {
             return null;
         }
 
-        return tiles[pos.x, pos.y];
+        return tiles[x, y];
     }
 
     public TileType GetTileType(IntVector2 pos) {
@@ -148,8 +157,32 @@ public class Board {
         return tiles[pos.x, pos.y].type;
     }
 
-    public void SetTileType(IntVector2 pos, TileType type) {
-        tiles[pos.x, pos.y].type = type;
+    public void Update(float deltaTime) {
+        foreach (LargeItem item in largeItemMap.Keys) {
+            item.Update(deltaTime);
+        }
+    }
+
+    /// Sends out an event that a tile has been changed in some way.
+    ///
+    /// @param e - An event object containing the information about the changes.
+    public void OnTileEvent(Events.TileEvent e) {
+        // TODO: Update pathfinding grid when large items are added or removed.
+
+        // If a large item was just added to the world, make sure it is in our
+        // map of items. Likewise, if one was just removed, make sure it is _not_
+        // in our map.
+        if (e.tileEventType == Events.TileEventType.LargeItemAdded) {
+            largeItemMap.Add(e.largeItem, e.tile);
+        }
+        else if (e.tileEventType == Events.TileEventType.LargeItemRemoved) {
+            largeItemMap.Remove(e.largeItem);
+        }
+
+        // Finally, update any listeners.
+        if (onTileEvent != null) {
+            onTileEvent(e);
+        }
     }
 
     public void RegisterOnTileEvent(Action<Events.TileEvent> action) {
@@ -158,11 +191,5 @@ public class Board {
 
     public void UnregisterOnTileEvent(Action<Events.TileEvent> action) {
         onTileEvent -= action;
-    }
-
-    public void OnTileEvent(Events.TileEvent e) {
-        if (onTileEvent != null) {
-            onTileEvent(e);
-        }
     }
 }
