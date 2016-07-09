@@ -107,7 +107,6 @@ public class TileController : MonoBehaviour {
     }
 
     private SpriteRenderer GetChildSpriteRenderer(string goName) {
-        Debug.Log("Getting sprite renderer for " + goName);
         Transform trans = transform.Find(goName);
         if (trans == null) {
             Debug.LogError("Could not find transform for " + goName);

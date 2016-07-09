@@ -25,6 +25,8 @@ public class TileManager : MonoBehaviour {
     private IntVector2 tileTL = IntVector2.zero;
     private IntVector2 tileBR = IntVector2.zero;
 
+    private bool firstUpdate = true;
+
 	// Use this for initialization
 	void Start() {
         if (instance != null && instance != this) {
@@ -57,6 +59,11 @@ public class TileManager : MonoBehaviour {
 	}
 
 	void Update() {
+        if (firstUpdate) {
+            firstUpdate = false;
+            Redraw();
+        }
+
         // If the camera controller moved this last frame, let's move our tiles
         // to keep centered around it.
         if (camController.movement.x != 0 || camController.movement.y != 0) {
@@ -127,6 +134,7 @@ public class TileManager : MonoBehaviour {
         }
 
         // Now construct the new tiles.
+        Debug.Log("Constructing board at " + displayWidth + "x" + displayHeight);
         displayTiles = new TileController[displayWidth, displayHeight];
         for (int x = 0; x < displayWidth; ++x) {
             for (int y = 0; y < displayHeight; ++y) {
@@ -135,7 +143,8 @@ public class TileManager : MonoBehaviour {
                 tile.name = "Tile(" + x + ", " + y + ")";
                 tile.transform.parent = gameObject.transform;
 
-                Debug.Log("Created " + tile.name);
+                // Only enable if you _really_ need this!
+                // Debug.Log("Created " + tile.name);
 
                 // Set up the tile's controller.
                 TileController controller = tile.GetComponent<TileController>();
@@ -147,7 +156,6 @@ public class TileManager : MonoBehaviour {
 
         tileTL = new IntVector2(0, displayHeight - 1);
         tileBR = new IntVector2(displayWidth - 1, 0);
-        Debug.Log("Board constructed at " + displayWidth + "x" + displayHeight);
 
         // After building the board we'll need to move the board to be centered
         // around the screen.
