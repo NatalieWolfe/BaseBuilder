@@ -40,6 +40,7 @@ public class BoardManager : MonoBehaviour {
 
         // TODO: Make board generation dynamic.
         board = new Board(50, 50);
+        board.GetTile(0, 1).SetLargeItem(new Item.Chest());
 	}
 
 }

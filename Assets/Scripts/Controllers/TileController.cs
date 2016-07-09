@@ -9,24 +9,24 @@ public class TileController : MonoBehaviour {
     public IntVector2 displayPosition;
     public Board.Tile tile;
 
-    private SpriteRenderer spriteRenderer;
+    private SpriteRenderer backgroundSpriteRenderer;
+    private SpriteRenderer largeItemSpriteRenderer;
 
     void Start() {
-        spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null) {
-            Debug.LogError("Can not find tile's sprite renderer.");
-        }
+        // Fetch the sprite renderers.
+        backgroundSpriteRenderer = GetChildSpriteRenderer("Background");
+        largeItemSpriteRenderer = GetChildSpriteRenderer("Large Item");
 
         SetType(type);
     }
 
     public void SetType(Board.TileType newType) {
         type = newType;
-        if (spriteRenderer != null) {
+        if (backgroundSpriteRenderer != null) {
             // This function is called by the TileManager when it instantiates
             // the Tile prefab. That means it is executed _before_ Start, and
             // thus we won't have cached the sprite renderer yet.
-            spriteRenderer.sprite = TileManager.instance.sprites[(int)type];
+            backgroundSpriteRenderer.sprite = TileManager.instance.tileSprites[(int)type];
         }
     }
 
@@ -73,18 +73,52 @@ public class TileController : MonoBehaviour {
     }
 
     public void Render() {
+        if (backgroundSpriteRenderer == null || largeItemSpriteRenderer == null) {
+            // This can happen if `Render` is called _before_ `Start`, which
+            // happens when first constructed. It is a normal thing to happen
+            // so we just ignore this state.
+            return;
+        }
+
         // TODO: Render a sprite for each item on the tile.
+
+        largeItemSpriteRenderer.sprite = null;
+        TileManager tm = TileManager.instance;
+
+        // No tile? Render an edge!
         if (tile == null) {
             SetType(Board.TileType.Edge);
+            return;
         }
-        else if (tile.HasLargeItem()) {
-            Debug.Log("Tile" + gridPosition + " has a large item!");
 
-            // TODO: Render the large item.
-            SetType(Board.TileType.Edge);
+        // If we have a large item, fetch its sprite.
+        if (tile.HasLargeItem()) {
+            Debug.Log("Tile" + gridPosition + " has a large item!");
+            Sprite sprite = null;
+            if (tm.itemSprites.TryGetValue(tile.GetLargeItem().name, out sprite)) {
+                largeItemSpriteRenderer.sprite = sprite;
+            }
+            else {
+                Debug.LogError("Could not find sprite for " + tile.GetLargeItem().name);
+            }
         }
-        else {
-            SetType(tile.type);
+
+        SetType(tile.type);
+    }
+
+    private SpriteRenderer GetChildSpriteRenderer(string goName) {
+        Debug.Log("Getting sprite renderer for " + goName);
+        Transform trans = transform.Find(goName);
+        if (trans == null) {
+            Debug.LogError("Could not find transform for " + goName);
+            return null;
         }
+
+        SpriteRenderer sr = trans.gameObject.GetComponent<SpriteRenderer>();
+        if (sr == null) {
+            Debug.LogError("Can not find sprite renderer for " + goName);
+        }
+
+        return sr;
     }
 }

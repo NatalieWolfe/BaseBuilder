@@ -1,13 +1,21 @@
 
 using UnityEngine;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class TileManager : MonoBehaviour {
     public static TileManager instance;
 
+    [Serializable]
+    public struct NamedSprite {
+        public string name;
+        public Sprite sprite;
+    }
+
     public GameObject tilePrefab;
-    public Sprite[] sprites;
+    public Sprite[] tileSprites;
+    public NamedSprite[] itemSpriteList;
+    public Dictionary<string, Sprite> itemSprites;
 
     public int displayWidth;
     public int displayHeight;
@@ -25,15 +33,25 @@ public class TileManager : MonoBehaviour {
         }
         instance = this;
 
-        if (Enum.GetValues(typeof(Board.TileType)).Length != sprites.Length) {
+        // Make sure our tile sprites match up with our tile types.
+        if (Enum.GetValues(typeof(Board.TileType)).Length != tileSprites.Length) {
             Debug.LogError("Tile sprites and TileTypes do not match!");
         }
 
+        // Fetch the main camera's controller.
         camController = Camera.main.GetComponent<CameraController>();
         if (camController == null) {
             Debug.LogError("TileManager could not find main camera's controller.");
         }
 
+        // Load the item sprites into a dictionary for faster reference.
+        itemSprites = new Dictionary<string, Sprite>();
+        foreach (NamedSprite ns in itemSpriteList) {
+            Debug.Log("Adding item sprite " + ns.name);
+            itemSprites.Add(ns.name, ns.sprite);
+        }
+
+        // Build the board and register for tile events.
         BuildDisplayBoard();
         BoardManager.Board.RegisterOnTileEvent(OnTileEvent);
 	}
@@ -114,8 +132,10 @@ public class TileManager : MonoBehaviour {
             for (int y = 0; y < displayHeight; ++y) {
                 // Create a new tile instance.
                 GameObject tile = Instantiate(tilePrefab) as GameObject;
-                tile.name = "Tile (" + x + ", " + y + ")";
+                tile.name = "Tile(" + x + ", " + y + ")";
                 tile.transform.parent = gameObject.transform;
+
+                Debug.Log("Created " + tile.name);
 
                 // Set up the tile's controller.
                 TileController controller = tile.GetComponent<TileController>();
