@@ -35,7 +35,7 @@ public class TileManager : MonoBehaviour {
         }
 
         BuildDisplayBoard();
-        BoardManager.Board.RegisterOnTileUpdated(OnTileUpdated);
+        BoardManager.Board.RegisterOnTileEvent(OnTileEvent);
 	}
 
 	void Update() {
@@ -229,12 +229,12 @@ public class TileManager : MonoBehaviour {
         ];
     }
 
-    private void OnTileUpdated(Board.Tile tile) {
+    private void OnTileEvent(Events.TileEvent e) {
         // Get the controller and check that we actually found one. If the tile
         // isn't being displayed currently, then GetTileController returns null.
-        TileController controller = GetTileController(tile);
+        TileController controller = GetTileController(e.tile);
         if (controller != null) {
-            controller.TileUpdated();
+            controller.OnTileEvent(e);
         }
     }
 

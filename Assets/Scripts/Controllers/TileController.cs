@@ -68,7 +68,7 @@ public class TileController : MonoBehaviour {
         );
     }
 
-    public void TileUpdated() {
+    public void OnTileEvent(Events.TileEvent e) {
         Render();
     }
 

@@ -37,15 +37,16 @@ public class Board {
                 return;
             }
             largeItem = item;
-            board.TileUpdated(this);
+            SendTileEvent(Events.TileEventType.LargeItemAdded, item);
         }
 
         public void RemoveLargeItem() {
             if (HasSmallItems()) {
                 Debug.Log(this + " dropping small items on floor.");
             }
+            LargeItem item = this.largeItem;
             this.largeItem = null;
-            board.TileUpdated(this);
+            SendTileEvent(Events.TileEventType.LargeItemRemoved, item);
         }
 
         public bool HasSmallItems() {
@@ -62,7 +63,7 @@ public class Board {
                 return;
             }
             smallItems.Add(item);
-            board.TileUpdated(this);
+            SendTileEvent(Events.TileEventType.SmallItemAdded, item);
         }
 
         public ulong GetHinderance() {
@@ -85,6 +86,22 @@ public class Board {
         public override string ToString() {
             return "Tile" + position;
         }
+
+        private void SendTileEvent(Events.TileEventType eventType) {
+            SendTileEvent(new Events.TileEvent(eventType, this));
+        }
+
+        private void SendTileEvent(Events.TileEventType eventType, LargeItem item) {
+            SendTileEvent(new Events.TileEvent(eventType, this, item));
+        }
+
+        private void SendTileEvent(Events.TileEventType eventType, SmallItem item) {
+            SendTileEvent(new Events.TileEvent(eventType, this, item));
+        }
+
+        private void SendTileEvent(Events.TileEvent e) {
+            board.OnTileEvent(e);
+        }
     }
 
     // TODO: Make boards infinite in dimension. Simplex or Perlin?
@@ -97,7 +114,7 @@ public class Board {
     public int height;
     public Tile[,] tiles;
 
-    private Action<Tile> onTileUpdated;
+    private Action<Events.TileEvent> onTileEvent;
 
     public Board(int _width, int _height) {
         width = _width;
@@ -135,17 +152,17 @@ public class Board {
         tiles[pos.x, pos.y].type = type;
     }
 
-    public void RegisterOnTileUpdated(Action<Tile> action) {
-        onTileUpdated += action;
+    public void RegisterOnTileEvent(Action<Events.TileEvent> action) {
+        onTileEvent += action;
     }
 
-    public void UnregisterOnTileUpdated(Action<Tile> action) {
-        onTileUpdated -= action;
+    public void UnregisterOnTileEvent(Action<Events.TileEvent> action) {
+        onTileEvent -= action;
     }
 
-    public void TileUpdated(Tile tile) {
-        if (onTileUpdated != null) {
-            onTileUpdated(tile);
+    public void OnTileEvent(Events.TileEvent e) {
+        if (onTileEvent != null) {
+            onTileEvent(e);
         }
     }
 }
