@@ -4,6 +4,12 @@ public static class Events {
         TileEvent
     }
 
+    public class Event {
+        public EventType eventType;
+    }
+
+    // ---------------------------------------------------------------------- //
+
     public enum TileEventType {
         LargeItemAdded,
         LargeItemRemoved,
@@ -11,10 +17,6 @@ public static class Events {
         SmallItemRemoved,
         TypeChanged
     };
-
-    public class Event {
-        public EventType eventType;
-    }
 
     public class TileEvent : Event {
         public TileEventType tileEventType;
@@ -47,4 +49,6 @@ public static class Events {
             this.smallItem = null;
         }
     }
+
+    // ---------------------------------------------------------------------- //
 }
