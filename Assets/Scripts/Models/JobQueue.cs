@@ -6,8 +6,11 @@ public class JobQueue {
     public class Job {
         public IntVector2 position {get; private set;}
 
-        private Job(IntVector2 pos) {
-            position = pos;
+        private Game game;
+
+        private Job(Game game, IntVector2 pos) {
+            this.game = game;
+            this.position = pos;
         }
 
         private Job() {}
@@ -19,16 +22,16 @@ public class JobQueue {
             return new Job();
         }
 
-        public static Job Instantiate(Job jobProto, IntVector2 pos) {
+        public static Job Instantiate(Game game, Job jobProto, IntVector2 pos) {
             // TODO: Update the new job with copies of our action/update funcs.
-            return new Job(pos);
+            return new Job(game, pos);
         }
 
         public bool Update() {
             // TODO:    Take in an "effort" or "work" amount to subtract from
             //          the job's time-to-completion meter. When meter reaches
             //          zero, job is completed so return true.
-            Board.Tile tile = BoardManager.Board.GetTile(position);
+            Board.Tile tile = game.board.GetTile(position);
             if (tile.HasLargeItem()) {
                 Debug.LogError(
                     "Dropping job, Tile" + position + " already has large item."
@@ -36,7 +39,7 @@ public class JobQueue {
                 return true; // TODO: Replace with some other status check.
             }
 
-            Item.Wall wall = new Item.Wall();
+            Item.Wall wall = new Item.Wall(game);
             wall.position = position;
             tile.SetLargeItem(wall);
 
@@ -57,16 +60,24 @@ public class JobQueue {
     public IEnumerable<Job> Jobs {get { return jobs; }}
     public int Count {get { return jobs.Count; }}
 
+    private Game game;
     private Queue<Job> jobs = new Queue<Job>();
 
-    public JobQueue() {}
+    public JobQueue(Game game) {
+        this.game = game;
+    }
+
+    public void Update(float deltaTime) {
+        // TODO: Manage work queue and resolve/collapse dependencies.
+        // TODO: "Age" tasks, expire/reprioritize by age.
+    }
 
     public Job MakeProtoJob() {
         return Job.MakeProtoJob();
     }
 
     public void AddJob(Job jobProto, IntVector2 position) {
-        Job job = Job.Instantiate(jobProto, position);
+        Job job = Job.Instantiate(game, jobProto, position);
         jobs.Enqueue(job);
     }
 

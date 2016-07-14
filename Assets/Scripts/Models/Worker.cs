@@ -14,7 +14,12 @@ public class Worker {
     public JobQueue.Job job;
 
     // TODO: Add worker inventory.
+    private Game game;
     private Queue<IntVector2> path;
+
+    public Worker(Game game) {
+        this.game = game;
+    }
 
     public void Update(float deltaTime) {
         if (!isWorking) {
@@ -26,7 +31,7 @@ public class Worker {
             UpdateMovement(deltaTime);
         }
         else if (job == null) {
-            if (WorkersUnion.Jobs.Count == 0) {
+            if (game.jobs.Count == 0) {
                 // TODO:    Move to some central meeting area or frequently used
                 //          stockpile to be ready for a new job.
                 // TODO: Take jobs away from other workers.
@@ -35,7 +40,7 @@ public class Worker {
 
             // TODO: Grab the job based on our position.
             // TODO: Grab the job based on our skill set.
-            job = WorkersUnion.Jobs.ClaimJob();
+            job = game.jobs.ClaimJob();
         }
         else if (!position.IsNextTo(job.position)) {
             BuildPathNextTo(job.position);

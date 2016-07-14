@@ -3,11 +3,15 @@ public class SmallItem {
     public IntVector2 position;
     public string type {get; protected set;}
 
-    public SmallItem(string type) {
+    private Game game;
+
+    public SmallItem(Game game, string type) {
+        this.game = game;
         this.type = type;
     }
 
     protected SmallItem(SmallItem other) {
+        this.game = other.game;
         this.type = other.type;
     }
 
@@ -35,6 +39,6 @@ public class SmallItem {
     }
 
     protected void SendItemEvent(Events.ItemEvent e) {
-        ItemDatabase.instance.OnItemEvent(e);
+        game.itemDB.OnItemEvent(e);
     }
 }

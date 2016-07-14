@@ -13,17 +13,10 @@ public class UnionManager : MonoBehaviour {
         }
         instance = this;
 
-        // TODO: Manage work force based on demand.
-        WorkersUnion union = WorkersUnion.instance;
-        union.RegisterOnWorkerEvent(OnWorkerEvent);
+        GameManager.Game.union.RegisterOnWorkerEvent(OnWorkerEvent);
 
         // FIXME: This is just for debugging!
-        union.CreateWorker();
-	}
-
-	void Update () {
-        // TODO: Manage work queue and resolve/collapse dependencies.
-        WorkersUnion.instance.Update(Time.deltaTime);
+        GameManager.Game.union.CreateWorker();
 	}
 
     private void OnWorkerEvent(Events.WorkerEvent e) {
@@ -39,5 +32,10 @@ public class UnionManager : MonoBehaviour {
 
             controller.worker = e.worker;
         }
+        else if (e.workerEventType == Events.WorkerEventType.WorkerDestroyed) {
+            // TODO: Destroy game object when worker destroyed.
+            // TODO: Death animations?
+        }
+
     }
 }

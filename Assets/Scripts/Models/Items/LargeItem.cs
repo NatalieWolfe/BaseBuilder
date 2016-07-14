@@ -8,11 +8,15 @@ public class LargeItem {
     public IntVector2 position;
     public string type {get; protected set;}
 
-    public LargeItem(string type) {
+    private Game game;
+
+    public LargeItem(Game game, string type) {
+        this.game = game;
         this.type = type;
     }
 
     protected LargeItem(LargeItem other) {
+        this.game = other.game;
         this.type = other.type;
     }
 
@@ -44,6 +48,6 @@ public class LargeItem {
     }
 
     protected void SendItemEvent(Events.ItemEvent e) {
-        ItemDatabase.instance.OnItemEvent(e);
+        game.itemDB.OnItemEvent(e);
     }
 }

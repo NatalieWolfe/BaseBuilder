@@ -4,15 +4,7 @@ using System;
 using System.Collections.Generic;
 
 public class ItemDatabase {
-    public static ItemDatabase instance {
-        get {
-            if (_instance == null) {
-                _instance = new ItemDatabase();
-            }
-            return _instance;
-        }
-    }
-    private static ItemDatabase _instance;
+    private Game game;
 
     // Databases containing the full set of items created in the world.
     private HashSet<LargeItem> largeItems;
@@ -28,7 +20,8 @@ public class ItemDatabase {
 
     private Action<Events.ItemEvent> onItemEvent;
 
-    private ItemDatabase() {
+    public ItemDatabase(Game game) {
+        this.game           = game;
         this.largeItems     = new HashSet<LargeItem>();
         this.smallItems     = new HashSet<SmallItem>();
         this.itemsByType    = new Dictionary<string, List<ItemReference>>();
@@ -57,7 +50,7 @@ public class ItemDatabase {
         else {
             // This type doesn't have it's own prototype, so we'll just use the
             // generic base type instead.
-            item = new LargeItem(type);
+            item = new LargeItem(game, type);
         }
 
         // Store the item in our database for future lookups and add it to our
@@ -80,7 +73,7 @@ public class ItemDatabase {
         else {
             // This type doesn't have it's own prototype, so we'll just use the
             // generic base type instead.
-            item = new SmallItem(type);
+            item = new SmallItem(game, type);
         }
 
         // Store the item in our database for future lookups and add it to our

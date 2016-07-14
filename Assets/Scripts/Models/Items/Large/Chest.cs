@@ -4,7 +4,7 @@ using System.Collections;
 namespace Item {
 
 public class Chest : LargeItem {
-    public Chest(): base("Chest") {
+    public Chest(Game game): base(game, "Chest") {
     }
 
     private Chest(Chest other): base(other as LargeItem) {

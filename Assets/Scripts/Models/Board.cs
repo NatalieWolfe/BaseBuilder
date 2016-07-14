@@ -67,7 +67,8 @@ public class Board {
         }
 
         public ulong GetHinderance() {
-            ulong hinderance = type == TileType.Edge ? AStarResolver.MAX_COST : 1ul; // TODO: Add per-tile-type hinderances.
+            // TODO: Add per-tile-type hinderances.
+            ulong hinderance = type == TileType.Edge ? AStarResolver.MAX_COST : 1ul;
             if (HasLargeItem()) {
                 hinderance += largeItem.GetHinderance();
             }
@@ -114,13 +115,15 @@ public class Board {
     public int height;
     public Tile[,] tiles;
 
+    private Game game;
     private Action<Events.TileEvent> onTileEvent;
     private Dictionary<LargeItem, Tile> largeItemMap = new Dictionary<LargeItem, Tile>();
 
-    public Board(int _width, int _height) {
-        width = _width;
-        height = _height;
-        tiles = new Tile[width, height];
+    public Board(Game game, int width, int height) {
+        this.game   = game;
+        this.width  = width;
+        this.height = height;
+        this.tiles  = new Tile[width, height];
 
         // TODO: Dynamically generate tiles here.
         for (int x = 0; x < width; ++x) {
