@@ -70,6 +70,28 @@ public class WorkerController : MonoBehaviour {
 	}
 
     private void BuildPathTo(IntVector2 position) {
+        // If we're standing on the target, find the neighbor with the lowest
+        // movement cost and move into it.
+        if (position == gridPosition) {
+            Board.Tile tile = BoardManager.Board.GetTile(position);
+            Board.Tile moveTo = null;
+            foreach (Board.Tile neighbor in tile.GetNeighbors()) {
+                if (
+                    moveTo == null ||
+                    moveTo.GetHinderance() > neighbor.GetHinderance()
+                ) {
+                    moveTo = neighbor;
+                }
+            }
+
+            if (moveTo.GetHinderance() < AStarResolver.MAX_COST) {
+                path = new Queue<IntVector2>();
+                path.Enqueue(moveTo.position);
+            }
+            return;
+        }
+
+        // We aren't standing in the target, so find a path to it.
         AStarResolver resolver = new AStarResolver(BoardManager.Board);
         path = resolver.FindPath(gridPosition, position);
     }
