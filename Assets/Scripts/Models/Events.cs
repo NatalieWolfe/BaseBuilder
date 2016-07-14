@@ -2,7 +2,8 @@
 public static class Events {
     public enum EventType {
         ItemEvent,
-        TileEvent
+        TileEvent,
+        WorkerEvent
     }
 
     public class Event {
@@ -92,6 +93,27 @@ public static class Events {
             this.tile = tile;
             this.largeItem = null;
             this.smallItem = null;
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+
+    public enum WorkerEventType {
+        WorkerCreated,
+        WorkerDestroyed,
+
+        Custom
+    }
+
+    public class WorkerEvent : Event {
+        public WorkerEventType workerEventType;
+        public Worker worker;
+
+        public WorkerEvent(WorkerEventType type, Worker worker):
+            base(EventType.WorkerEvent)
+        {
+            this.workerEventType = type;
+            this.worker = worker;
         }
     }
 
