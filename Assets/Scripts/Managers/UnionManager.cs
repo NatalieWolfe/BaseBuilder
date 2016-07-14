@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WorkerManager : MonoBehaviour {
-    public static WorkerManager instance;
+public class UnionManager : MonoBehaviour {
+    public static UnionManager instance;
     public static JobQueue Jobs {get { return instance.jobs; }}
 
     public GameObject workerPrefab;
@@ -22,6 +22,6 @@ public class WorkerManager : MonoBehaviour {
 	}
 
 	void Update () {
-        // TODO: Manager work queue and resolve/collapse dependencies.
+        // TODO: Manage work queue and resolve/collapse dependencies.
 	}
 }

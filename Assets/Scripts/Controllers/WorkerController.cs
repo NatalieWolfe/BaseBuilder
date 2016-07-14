@@ -21,7 +21,7 @@ public class WorkerController : MonoBehaviour {
 
 	void Update () {
         // TODO: Implement A* pathfinding.
-        // TODO: Access WorkerManager for tasks.
+        // TODO: Access UnionManager for tasks.
         // TODO: Check worker inventory against job reqs.
 
         // Update our current grid position.
@@ -34,12 +34,12 @@ public class WorkerController : MonoBehaviour {
 
         // If we don't currently have a job, look for one.
         if (job == null) {
-            if (WorkerManager.Jobs.Count == 0) {
+            if (UnionManager.Jobs.Count == 0) {
                 // TODO:    Move to some central meeting area or frequently used
                 //          stockpile to be ready for a new job.
                 return;
             }
-            job = WorkerManager.Jobs.ClaimJob();
+            job = UnionManager.Jobs.ClaimJob();
         }
 
         if ((path == null || path.Count == 0) && !gridPosition.IsNextTo(job.position)) {
