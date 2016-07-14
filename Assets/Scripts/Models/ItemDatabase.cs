@@ -24,14 +24,14 @@ public class ItemDatabase {
     private Dictionary<string, SmallItem> smallItemTypes;
 
     // Index of all items in the world, keyed on type.
-    private Dictionary<string, List<WeakReference>> itemsByType;
+    private Dictionary<string, List<ItemReference>> itemsByType;
 
     private Action<Events.ItemEvent> onItemEvent;
 
     private ItemDatabase() {
         this.largeItems     = new HashSet<LargeItem>();
         this.smallItems     = new HashSet<SmallItem>();
-        this.itemsByType    = new Dictionary<string, List<WeakReference>>();
+        this.itemsByType    = new Dictionary<string, List<ItemReference>>();
         this.largeItemTypes = new Dictionary<string, LargeItem>();
         this.smallItemTypes = new Dictionary<string, SmallItem>();
     }
@@ -109,9 +109,9 @@ public class ItemDatabase {
             yield break;
         }
 
-        List<WeakReference> items = itemsByType[type];
-        List<WeakReference> toRemove = new List<WeakReference>();
-        foreach (WeakReference itemRef in items) {
+        List<ItemReference> items = itemsByType[type];
+        List<ItemReference> toRemove = new List<ItemReference>();
+        foreach (ItemReference itemRef in items) {
             // If the reference is not valid anymore, then we'll add it to our
             // list of things to clean up and move on.
             if (!itemRef.IsAlive) {
@@ -121,14 +121,14 @@ public class ItemDatabase {
 
             // If the referenced item is an instance of the desired type then
             // yield it to the caller.
-            if (itemRef.Target is T) {
-                yield return itemRef.Target as T;
+            if (itemRef.Is<T>()) {
+                yield return itemRef.As<T>();
             }
         }
 
         // Now that we're not iterating over the items list we can remove the
         // dead references.
-        foreach (WeakReference itemRef in toRemove) {
+        foreach (ItemReference itemRef in toRemove) {
             items.Remove(itemRef);
         }
 
@@ -141,15 +141,15 @@ public class ItemDatabase {
     public void CleanReferences() {
         // TODO: There has _got_ to be a better way to clean up dead references.
 
-        List<WeakReference> toRemove = new List<WeakReference>();
-        foreach (List<WeakReference> items in itemsByType.Values) {
-            foreach (WeakReference itemRef in items) {
+        List<ItemReference> toRemove = new List<ItemReference>();
+        foreach (List<ItemReference> items in itemsByType.Values) {
+            foreach (ItemReference itemRef in items) {
                 if (!itemRef.IsAlive) {
                     toRemove.Add(itemRef);
                 }
             }
 
-            foreach (WeakReference itemRef in toRemove) {
+            foreach (ItemReference itemRef in toRemove) {
                 items.Remove(itemRef);
             }
             toRemove.Clear();
@@ -171,11 +171,11 @@ public class ItemDatabase {
     }
 
     private void UpdateIndexes(string type, object item) {
-        List<WeakReference> itemRefs;
+        List<ItemReference> itemRefs;
         if (!itemsByType.TryGetValue(type, out itemRefs)) {
-            itemRefs = new List<WeakReference>();
+            itemRefs = new List<ItemReference>();
             itemsByType.Add(type, itemRefs);
         }
-        itemRefs.Add(new WeakReference(item));
+        itemRefs.Add(new ItemReference(item));
     }
 }
