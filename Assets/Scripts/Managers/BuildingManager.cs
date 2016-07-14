@@ -21,7 +21,7 @@ public class BuildingManager : MonoBehaviour {
         cursorDrag = new IntDragger2(KeyCode.Mouse0);
 
         // TODO: Remove this after adding "Tool" class.
-        jobProto = UnionManager.Jobs.MakeProtoJob();
+        jobProto = WorkersUnion.Jobs.MakeProtoJob();
 	}
 
 	void Update() {
@@ -47,7 +47,7 @@ public class BuildingManager : MonoBehaviour {
             ReleaseCursors();
 
             foreach (IntVector2 pos in jobProto.ValidPositions(cursorDrag.box)) {
-                UnionManager.Jobs.AddJob(jobProto, pos);
+                WorkersUnion.Jobs.AddJob(jobProto, pos);
             }
         }
     }
