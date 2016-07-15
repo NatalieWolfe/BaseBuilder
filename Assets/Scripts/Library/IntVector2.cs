@@ -1,4 +1,5 @@
 
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -65,6 +66,20 @@ public class IntVector2 {
 
     public override int GetHashCode() {
         return x ^ y;
+    }
+
+    public static Vector2 Lerp(IntVector2 a, IntVector2 b, float t) {
+        return new Vector2(
+            Mathf.Lerp(a.x, b.x, t),
+            Mathf.Lerp(a.y, b.y, t)
+        );
+    }
+
+    public static Vector2 LerpUnclamped(IntVector2 a, IntVector2 b, float t) {
+        return new Vector2(
+            Mathf.LerpUnclamped(a.x, b.x, t),
+            Mathf.LerpUnclamped(a.y, b.y, t)
+        );
     }
 
     public static bool operator==(IntVector2 a, IntVector2 b) {

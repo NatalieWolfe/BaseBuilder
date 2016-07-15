@@ -95,11 +95,11 @@ public class TileController : MonoBehaviour {
         if (tile.HasLargeItem()) {
             Debug.Log("Tile" + gridPosition + " has a large item!");
             Sprite sprite = null;
-            if (tm.itemSprites.TryGetValue(tile.GetLargeItem().name, out sprite)) {
+            if (tm.itemSprites.TryGetValue(tile.GetLargeItem().type, out sprite)) {
                 largeItemSpriteRenderer.sprite = sprite;
             }
             else {
-                Debug.LogError("Could not find sprite for " + tile.GetLargeItem().name);
+                Debug.LogError("Could not find sprite for " + tile.GetLargeItem().type);
             }
         }
 
