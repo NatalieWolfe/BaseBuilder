@@ -6,7 +6,7 @@ public class UnionManager : MonoBehaviour {
 
     public GameObject workerPrefab;
 
-	void Start () {
+    void Start () {
         if (instance != null && instance != this) {
             Destroy(this);
             return;
@@ -17,7 +17,7 @@ public class UnionManager : MonoBehaviour {
 
         // FIXME: This is just for debugging!
         GameManager.Game.union.CreateWorker();
-	}
+    }
 
     private void OnWorkerEvent(Events.WorkerEvent e) {
         if (e.workerEventType == Events.WorkerEventType.WorkerCreated) {
