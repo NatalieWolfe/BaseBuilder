@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour {
 
     public Game game {get; private set;}
 
-	void Start () {
+    void Start () {
         if (instance != null && instance != this) {
             Destroy(this);
             return;
@@ -18,9 +18,9 @@ public class GameManager : MonoBehaviour {
         game = new Game(50, 50);
         game.board.GetTile(0, 1).SetLargeItem(game.itemDB.CreateLargeItem("Chest"));
 
-	}
+    }
 
-	void Update () {
+    void Update () {
         game.Update(Time.deltaTime);
-	}
+    }
 }
