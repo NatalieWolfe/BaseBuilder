@@ -14,12 +14,13 @@ public class Worker {
     // TODO: Emit JobAssigned event when job is set.
     public JobQueue.Job job;
 
-    // TODO: Add worker inventory.
     private WorkersUnion union;
     private Queue<IntVector2> path;
+    private Inventory inventory;
 
     public Worker(WorkersUnion union) {
         this.union = union;
+        this.inventory = new Inventory(5); // TODO: Make inventory size configurable.
     }
 
     public void Update(float deltaTime) {
