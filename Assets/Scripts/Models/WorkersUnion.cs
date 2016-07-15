@@ -8,18 +8,33 @@ public class WorkersUnion {
     private Action<Events.WorkerEvent> onWorkerEvent;
 
     public WorkersUnion(Game game) {
+        // TODO:    Different kinds of unions that focus their workers on
+        //          specific kinds of tasks.
         this.game = game;
         this.workers = new List<Worker>();
     }
 
     public Worker CreateWorker() {
         // Create the worker and add it to our list.
-        Worker worker = new Worker(game);
+        Worker worker = new Worker(this);
         workers.Add(worker);
 
         // Send out an event that this was created then return the new worker.
         SendWorkerEvent(Events.WorkerEventType.WorkerCreated, worker);
         return worker;
+    }
+
+    public JobQueue.Job FindJob(Worker worker) {
+        // TODO:    Move to some central meeting area or frequently used
+        //          stockpile to be ready for a new job.
+        // TODO: Take jobs away from other workers.
+        // TODO: Grab the job based on our position.
+        // TODO: Grab the job based on our skill set.
+
+        if (game.jobs.Count > 0) {
+            return game.jobs.ClaimJob();
+        }
+        return null;
     }
 
     public void Update(float deltaTime) {

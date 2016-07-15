@@ -11,14 +11,15 @@ public class Worker {
     public float moveCompletion = 0;
     public bool isWorking = true;
 
+    // TODO: Emit JobAssigned event when job is set.
     public JobQueue.Job job;
 
     // TODO: Add worker inventory.
-    private Game game;
+    private WorkersUnion union;
     private Queue<IntVector2> path;
 
-    public Worker(Game game) {
-        this.game = game;
+    public Worker(WorkersUnion union) {
+        this.union = union;
     }
 
     public void Update(float deltaTime) {
@@ -31,16 +32,8 @@ public class Worker {
             UpdateMovement(deltaTime);
         }
         else if (job == null) {
-            if (game.jobs.Count == 0) {
-                // TODO:    Move to some central meeting area or frequently used
-                //          stockpile to be ready for a new job.
-                // TODO: Take jobs away from other workers.
-                return;
-            }
-
-            // TODO: Grab the job based on our position.
-            // TODO: Grab the job based on our skill set.
-            job = game.jobs.ClaimJob();
+            // If we don't have a job, ask our union to find us one.
+            job = union.FindJob(this);
         }
         else if (!position.IsNextTo(job.position)) {
             BuildPathNextTo(job.position);
@@ -56,7 +49,7 @@ public class Worker {
             }
         }
         else {
-            // UpdateWork();
+            UpdateWork(deltaTime);
         }
     }
 
@@ -96,10 +89,6 @@ public class Worker {
         path = resolver.FindPath(this.position, position);
     }
 
-    private void UpdateMovement(float deltaTime) {
-
-    }
-
     private void RemoveLastPathItem() {
         if (path == null || path.Count < 2) {
             return;
@@ -113,43 +102,28 @@ public class Worker {
         } while (path.Peek() != first);
     }
 
+    private void UpdateMovement(float deltaTime) {
+        if (position == movingIntoPosition) {
+            if (path == null || path.Count == 0) {
+                Debug.LogError("Updating movement, but no path to follow.");
+                return;
+            }
 
-    // private int Clamp(int a, int min, int max) {
-    //     return Math.Min(max, Math.Max(min, a));
-    // }
-    //
-    // private void Move() {
-    //     if (path.Count == 0) {
-    //         return;
-    //     }
-    //
-    //     IntVector2 next = path.Peek();
-    //     Vector3 worldNext = BoardManager.GridToWorldPoint(next);
-    //     worldNext.z = transform.position.z;
-    //     if (transform.position == worldNext) {
-    //         path.Dequeue();
-    //         if (path.Count == 0) {
-    //             return;
-    //         }
-    //         next = path.Peek();
-    //     }
-    //     MoveTo(next);
-    // }
-    //
-    // private void MoveTo(IntVector2 position) {
-    //     float dist = speed * Time.deltaTime;
-    //     Vector3 movement = new Vector3(
-    //         Mathf.Clamp(position.x - transform.position.x, -dist, dist),
-    //         Mathf.Clamp(position.y - transform.position.y, -dist, dist),
-    //         0
-    //     );
-    //
-    //     transform.position += movement;
-    // }
-    //
-    // private void WorkOnJob() {
-    //     if (job != null && job.Update()) {
-    //         job = null;
-    //     }
-    // }
+            movingIntoPosition = path.Dequeue();
+            moveCompletion = 0f;
+        }
+
+        moveCompletion += speed * deltaTime;
+        if (moveCompletion >= 1f) {
+            position = movingIntoPosition;
+            moveCompletion = 0f;
+        }
+    }
+
+    private void UpdateWork(float deltaTime) {
+        // TODO: Redo the way job updating works.
+        if (job.Update()) {
+            job = null;
+        }
+    }
 }
