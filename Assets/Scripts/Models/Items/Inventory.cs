@@ -8,26 +8,24 @@ public class Inventory {
     public int UsedCapacity {get { return items.Count; }}
     public bool IsFull {get { return capacity == UsedCapacity; }}
 
-    private List<ItemRef> items = new List<ItemRef>();
+    private List<ItemReference> items = new List<ItemReference>();
 
     public Inventory(int capacity) {
         this.capacity = capacity;
     }
 
     public IEnumerable<SmallItem> GetItems() {
-        foreach (ItemRef item in items) {
-            if (item.IsActive) {
-                yield return item.SmallItem;
-            }
+        foreach (ItemReference itemRef in GetItemReferences()) {
+            yield return itemRef.SmallItem;
         }
     }
 
-    public void AddItem(ItemRef item) {
+    public void AddItem(ItemReference item) {
         if (!item.IsSmallItem) {
             Debug.LogError("Trying to add large item to inventory.");
             return;
         }
-        if (!item.IsActive) {
+        if (!item.IsAlive) {
             Debug.LogError("Trying to add dead item to inventory.");
             return;
         }
@@ -54,10 +52,10 @@ public class Inventory {
     }
 
     public bool RemoveItemOfType(string type) {
-        SmallItem toRemove = null;
-        foreach (SmallItem item in GetItems()) {
-            if (item.type == type) {
-                toRemove = item;
+        ItemReference toRemove = null;
+        foreach (ItemReference itemRef in GetItemReferences()) {
+            if (itemRef.SmallItem.type == type) {
+                toRemove = itemRef;
                 break;
             }
         }
@@ -67,5 +65,14 @@ public class Inventory {
             return true;
         }
         return false;
+    }
+
+    private IEnumerable<ItemReference> GetItemReferences() {
+        foreach (ItemReference itemRef in items) {
+            if (itemRef.IsAlive) {
+                yield return itemRef;
+            }
+        }
+
     }
 }
