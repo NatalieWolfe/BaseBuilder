@@ -16,8 +16,17 @@ public class GameManager : MonoBehaviour {
 
         // TODO: Make board generation dynamic.
         game = new Game(50, 50);
-        game.board.GetTile(0, 1).SetLargeItem(game.itemDB.CreateLargeItem("Chest"));
 
+        // TODO: Load the item database from configurations.
+        game.itemDB.SetLargeItemProto("Chest", new Item.Chest(game));
+
+        // TODO: Make layout of board dynamic.
+        // FIXME: Remove all this crap, just for debugging.
+        Item.Chest chest = game.itemDB.CreateLargeItem("Chest") as Item.Chest;
+        game.board.GetTile(0, 1).SetLargeItem(chest);
+
+        SmallItem item = game.itemDB.CreateSmallItem("Wood");
+        chest.inventory.AddItem(new ItemReference(item));
     }
 
     void Update () {

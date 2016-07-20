@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 
 public class WorkersUnion {
-    private Game game;
+    public Game game {get; private set;}
+
     private List<Worker> workers;
     private Action<Events.WorkerEvent> onWorkerEvent;
 

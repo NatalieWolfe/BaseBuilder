@@ -5,12 +5,18 @@ using System.Collections.Generic;
 public class JobQueue {
     public class Job {
         public IntVector2 position {get; private set;}
+        public IEnumerable<string> requirements {get { return requiredItemTypes; }}
 
         private Game game;
+        private List<string> requiredItemTypes;
 
         private Job(Game game, IntVector2 pos) {
             this.game = game;
             this.position = pos;
+            this.requiredItemTypes = new List<string>();
+
+            // TODO: Have required items be configurable.
+            requiredItemTypes.Add("Wood");
         }
 
         private Job() {}

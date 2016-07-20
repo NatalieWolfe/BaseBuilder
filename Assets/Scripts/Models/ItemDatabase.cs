@@ -39,6 +39,10 @@ public class ItemDatabase {
         }
     }
 
+    public void SetLargeItemProto(string type, LargeItem proto) {
+        largeItemTypes.Add(type, proto);
+    }
+
     public LargeItem CreateLargeItem(string type) {
         // Look up if we have a custom prototype for this item type. If we do,
         // clone that prototype for our new item.

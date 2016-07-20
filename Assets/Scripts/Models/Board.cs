@@ -37,6 +37,7 @@ public class Board {
                 return;
             }
             largeItem = item;
+            item.position = position;
             SendTileEvent(Events.TileEventType.LargeItemAdded, item);
         }
 
