@@ -29,4 +29,27 @@ public class IntBox2D {
             }
         }
     }
+
+    public IEnumerable<IntVector2> Border() {
+        // Make a clock-wise traversal around the edges of the box, starting
+        // across the top.
+        for (int x = left; x <= right; ++x) {
+            yield return new IntVector2(x, top);
+        }
+
+        // Then down the right side.
+        for (int y = top - 1; y > bottom; --y) {
+            yield return new IntVector2(right, y);
+        }
+
+        // Then back along the bottom.
+        for (int x = right; x >= left; --x) {
+            yield return new IntVector2(x, bottom);
+        }
+
+        // And finally up the left side.
+        for (int y = bottom + 1; y < top; ++y) {
+            yield return new IntVector2(left, y);
+        }
+    }
 }
