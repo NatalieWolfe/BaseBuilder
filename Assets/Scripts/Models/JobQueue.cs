@@ -3,63 +3,32 @@ using UnityEngine; // For Debug.Log
 using System.Collections.Generic;
 
 public class JobQueue {
-    public class Job {
+    public abstract class Job {
+        //  vvv For some future, generic job class. vvv
+        // TODO:    Take in parameters describing the job, such as its name,
+        //          effort requirements, actions, and possibly position validator.
+
         public IntVector2 position {get; private set;}
         public IEnumerable<string> requirements {get { return requiredItemTypes; }}
 
-        private Game game;
-        private List<string> requiredItemTypes;
+        protected Game game;
+        protected List<string> requiredItemTypes;
 
-        private Job(Game game, IntVector2 pos) {
+        protected Job(Game game, IntVector2 pos) {
             this.game = game;
             this.position = pos;
             this.requiredItemTypes = new List<string>();
-
-            // TODO: Have required items be configurable.
-            requiredItemTypes.Add("Wood");
         }
 
-        private Job() {}
+        protected Job() {}
 
-        public static Job MakeProtoJob() {
-            // TODO:    Take in parameters describing the job, such as its name,
-            //          effort requirements, actions, and possibly position
-            //          validator.
-            return new Job();
-        }
+        public abstract Job Clone(Game game, IntVector2 pos);
 
-        public static Job Instantiate(Game game, Job jobProto, IntVector2 pos) {
-            // TODO: Update the new job with copies of our action/update funcs.
-            return new Job(game, pos);
-        }
+        public abstract bool Update(float deltaTime);
 
-        public bool Update() {
-            // TODO:    Take in an "effort" or "work" amount to subtract from
-            //          the job's time-to-completion meter. When meter reaches
-            //          zero, job is completed so return true.
-            Board.Tile tile = game.board.GetTile(position);
-            if (tile.HasLargeItem()) {
-                Debug.LogError(
-                    "Dropping job, Tile" + position + " already has large item."
-                );
-                return true; // TODO: Replace with some other status check.
-            }
-
-            Item.Wall wall = new Item.Wall(game);
-            wall.position = position;
-            tile.SetLargeItem(wall);
-
-            return true;
-        }
-
-        public bool IsPositionValid(IntVector2 pos) {
+        public virtual bool IsTileValid(Board.Tile tile) {
             // TODO: Make this configurable using a lambda.
             return true;
-        }
-
-        public IEnumerable<IntVector2> ValidPositions(IntBox2D box) {
-            // TODO: Make this configurable using a lambda.
-            return box.Positions();
         }
     }
 
@@ -78,12 +47,8 @@ public class JobQueue {
         // TODO: "Age" tasks, expire/reprioritize by age.
     }
 
-    public Job MakeProtoJob() {
-        return Job.MakeProtoJob();
-    }
-
     public void AddJob(Job jobProto, IntVector2 position) {
-        Job job = Job.Instantiate(game, jobProto, position);
+        Job job = jobProto.Clone(game, position);
         jobs.Enqueue(job);
     }
 

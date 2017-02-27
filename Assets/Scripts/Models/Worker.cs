@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 [Serializable]
 public class Worker {
-    public float speed = 4; // TODO: Make speed configurable.
+    public float speed = 5; // TODO: Make speed configurable.
     public IntVector2 position = IntVector2.zero;
     public IntVector2 movingIntoPosition = IntVector2.zero;
     public float moveCompletion = 0;
@@ -211,7 +211,7 @@ public class Worker {
 
     private void UpdateWork(float deltaTime) {
         // TODO: Redo the way job updating works.
-        if (job.Update()) {
+        if (job.Update(deltaTime)) {
             // TODO: Remove items for the job as progress goes forward.
             foreach (string itemType in job.requirements) {
                 inventory.RemoveItemOfType(itemType);
