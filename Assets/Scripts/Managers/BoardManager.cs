@@ -1,6 +1,6 @@
 
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class BoardManager : MonoBehaviour {
     public static Board Board {get { return GameManager.Game.board; }}
@@ -27,5 +27,13 @@ public class BoardManager : MonoBehaviour {
 
     public static IntVector2 ScreenToGridPoint(Vector3 pos) {
         return WorldToGridPoint(Camera.main.ScreenToWorldPoint(pos));
+    }
+
+    public static IEnumerable<Board.Tile> SelectionToTiles(
+        IEnumerable<IntVector2> selection
+    ) {
+        foreach (IntVector2 position in selection) {
+            yield return BoardManager.Board.GetTile(position);
+        }
     }
 }

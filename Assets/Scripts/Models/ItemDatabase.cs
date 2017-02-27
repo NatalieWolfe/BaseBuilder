@@ -46,21 +46,22 @@ public class ItemDatabase {
     public LargeItem CreateLargeItem(string type) {
         // Look up if we have a custom prototype for this item type. If we do,
         // clone that prototype for our new item.
-        LargeItem item;
         LargeItem proto;
-        if (largeItemTypes.TryGetValue(type, out proto)) {
-            item = proto.Clone();
-        }
-        else {
+        if (!largeItemTypes.TryGetValue(type, out proto)) {
             // This type doesn't have it's own prototype, so we'll just use the
             // generic base type instead.
-            item = new LargeItem(game, type);
+            proto = new LargeItem(game, type);
+            SetLargeItemProto(type, proto);
         }
+        return CreateLargeItem(proto);
+    }
 
+    public LargeItem CreateLargeItem(LargeItem proto) {
         // Store the item in our database for future lookups and add it to our
         // indexes.
+        LargeItem item = proto.Clone();
         largeItems.Add(item);
-        UpdateIndexes(type, item);
+        UpdateIndexes(item.type, item);
 
         // And done. Return the item!
         return item;

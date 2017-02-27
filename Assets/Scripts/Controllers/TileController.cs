@@ -82,7 +82,6 @@ public class TileController : MonoBehaviour {
 
         // TODO: Render a sprite for each item on the tile.
 
-        largeItemSpriteRenderer.sprite = null;
         TileManager tm = TileManager.instance;
 
         // No tile? Render an edge!
@@ -101,6 +100,8 @@ public class TileController : MonoBehaviour {
             else {
                 Debug.LogError("Could not find sprite for " + tile.GetLargeItem().type);
             }
+        } else {
+            largeItemSpriteRenderer.sprite = null;
         }
 
         SetType(tile.type);

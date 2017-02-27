@@ -4,29 +4,43 @@ using System;
 using System.Collections.Generic;
 
 public class BuildingManager : MonoBehaviour {
+    public static BuildingManager instance {get; private set;}
+
 
     public GameObject cursorPrefab;
-    public Board.TileType constructType; // TODO: Replace with "Tool" class.
+    public Tool tool;
 
     private PrefabPool cursorPool;
     private List<GameObject> cursors;
     private IntDragger2 cursorDrag;
 
-    private JobQueue.Job jobProto; // TODO: Remove after adding "Tool" class.
+    void Start() {
+        if (instance != null && instance != this) {
+            Destroy(this);
+            return;
+        }
+        instance = this;
 
-	void Start() {
         cursors = new List<GameObject>();
         cursorPool = new PrefabPool(cursorPrefab);
         cursorPool.SetParent(transform);
         cursorDrag = new IntDragger2(KeyCode.Mouse0);
 
-        // TODO: Remove this after adding "Tool" class.
-        jobProto = GameManager.Game.jobs.MakeProtoJob();
-	}
+        // FIXME: This is only for debugging.
+        LargeItem wall = GameManager.Game.itemDB.CreateLargeItem("Wall");
+        BuildingManager.instance.tool = new ConstructTool(wall);
+    }
 
-	void Update() {
-        UpdateCursorDrag();
-	}
+    void Update() {
+        // If there is no tool, simply clear our display, otherwise update the
+        // cursor.
+        if (tool == null) {
+            ReleaseCursors();
+        }
+        else {
+            UpdateCursorDrag();
+        }
+    }
 
     private void UpdateCursorDrag() {
         cursorDrag.Update();
@@ -36,7 +50,7 @@ public class BuildingManager : MonoBehaviour {
             // Release our currently displayed cursors.
             ReleaseCursors();
 
-            foreach (IntVector2 pos in jobProto.ValidPositions(cursorDrag.box)) {
+            foreach (IntVector2 pos in tool.GetSelectedPositions(cursorDrag)) {
                 cursors.Add(cursorPool.Acquire(BoardManager.GridToWorldPoint(pos)));
             }
         }
@@ -46,9 +60,9 @@ public class BuildingManager : MonoBehaviour {
             // No need to display the cursors anymore, release them.
             ReleaseCursors();
 
-            foreach (IntVector2 pos in jobProto.ValidPositions(cursorDrag.box)) {
-                GameManager.Game.jobs.AddJob(jobProto, pos);
-            }
+            tool.DoAction(
+                BoardManager.SelectionToTiles(tool.GetSelectedPositions(cursorDrag))
+            );
         }
     }
 

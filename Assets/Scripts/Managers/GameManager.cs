@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour {
 
         // TODO: Load the item database from configurations.
         game.itemDB.SetLargeItemProto("Chest", new Item.Chest(game));
+        game.itemDB.SetLargeItemProto("Wall", new Item.Wall(game));
 
         // TODO: Make layout of board dynamic.
         // FIXME: Remove all this crap, just for debugging.
